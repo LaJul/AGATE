@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<link href="main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+    <div id="fast-tournament">
+    
+        <div id="players-list">
+		
+			<table>
+				<form method="get">
+				<tr>
+					<th></th>
+					<th><input type="text" id="name" name="name" placeholder="Name" required="true"></th>
+					<th><input type="text" id="rating" name="rating"  maxlength="4" size="4" placeholder="Rating"></th>
+					<th></th>
+					<th><input type="button" value="+"/></th>
+				</tr>
+				</form>
+				<tr class="player">
+					<td>1</td>
+					<td class="name">CARLSEN Magnus</td>
+					<td>2850</td>
+					<td>4</td>
+					<td><input type="button" value="-"/></td>
+				</tr>
+				<tr class="player">
+					<td>2</td>
+					<td class="name">CARUANA Fabiano</td>
+					<td>2830</td>
+					<td>4</td>
+					<td><input type="button" value="-"/></td>
+				</tr>
+				<tr class="player">
+					<td>3</td>
+					<td class="name">KRAMNIK Vladimir</td>
+					<td>2800</td>
+					<td>3.5</td>
+					<td><input type="button" value="-"/></td>
+				</tr>
+				<tr class="player">
+					<td>4</td>
+					<td class="name">ARONIAN Levon</td>
+					<td>2800</td>
+					<td>3.5</td>
+					<td><input type="button" value="-"/></td>
+				</tr>
+			</table>
+            
+        </div>
+    
+        <div id="round-info">
+               
+            <div>
+				Ronde 5
+            </div>
+            
+            <div id="actions-list">
+			
+				<input type="button" value="PREC."/>
+                <input type="button" value="&#8734"/>
+				<input type="button" value="SUIV."/>
+				
+            </div>
+        
+			<div id="games-list">
+				<table>
+					<tr class="game"> 
+							<th>N°</th>
+							<th>Pts.</th>
+							<th>White</th>
+							<th>Res.</td>
+							<th>Black</th>
+							<th>Pts.</th>
+						</tr>
+						<tr class="game"> 
+							<td>1</td>
+							<td>4</td>
+							<td>CARLSEN Magnus</td>
+							<td><input type="button" value="X-X"/></td>
+							<td>CARUANA Fabiano</td>
+							<td>4</td>
+						</tr>
+						<tr class="game"> 
+							<td>2</td>
+							<td>3.5</td>
+							<td>KRAMNIK Vladimir</td>
+							<td><input type="button" value="X-X"/></td>
+							<td>ARONIAN Levon</td>
+							<td>3.5</td>
+						</tr>
+				
+				</table>
+			</div>
+
+		</div>
+	
+	</div>
+
+</body>
+</html>

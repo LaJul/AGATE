@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+
+  <div id="animation">
+    <div id="red-flag">
+        <div id="white-cross">
+           
+        </div>
+    </div>
+</div>
+ 
+ 
+<div id="home"> 
+    <div id="title">
+        <span>A</span><span>G</span><span>A</span><span>T</span><span>E</span>
+    </div>
+    
+    <div id="actions">
+        
+        <div id="search" class="ui search">
+            <input class="prompt" type="text" placeholder="Type to start searching for tournaments ...">
+            <div class="results"></div>
+        </div>
+
+        <div id="icons">
+
+        </div>
+
+    </div>
+
+    <div style="margin-top:50px  ;display: flex; justify-content: center">
+
+        <input type="button" value="TOURNOI EXPRESS" onclick="window.location='{{ path('tournaments_fast', {'fast': true})}}';"/>
+    
+    <table>
+    {% for tournament in tournaments %}
+        <tr> 
+            <td>{{ tournament.name }}</td>
+            <td><input type="button" value="GERER" onclick="window.location='{{ path('tournaments_fast_show', {'tournament': tournament.id})}}';"/></td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+
+</div>
+{% endblock %}
+{% block javascripts %}
+<script src="{{ asset('build/js/ajaxlivesearch.js') }}" />
+<script>
+    jQuery("#ls_query").ajaxlivesearch({
+        loaded_at: <?php echo time(); ?>,
+        token: <?php echo "'" . $handler->getToken() . "'"; ?>,
+        max_input: <?php echo Config::getConfig('maxInputLength'); ?>,
+    });
+</script>   
+{% endblock %}

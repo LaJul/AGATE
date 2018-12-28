@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<div id="tournament">
+    
+    <div id="players-list">
+        {% include 'players_list.html.twig' %}
+    </div>
+    
+    <div id="round-info">
+        
+        <div id="actions-list">
+            {% include 'actions_list.html.twig' %}
+        </div>
+        
+        <div id="games-list">
+            {% include 'games_list.html.twig' %}
+        </div>
+
+    </div>
+        
+    <div id="tournament-info">
+        {% include 'tournament_info.html.twig' %}
+    </div>
+    
+</div>
+    </div>
+{% endblock %}

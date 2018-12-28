@@ -1,0 +1,11 @@
+
+<table>
+{% for game in tournament.currentRound.games %}
+    <tr class="game"> 
+        <td>{{ game.number }}</td>
+        <td>{{ game.white.name }}</td>
+        <td><input type="button" value="{{ game.result }}" onclick="window.location='{{ path('set_game_result', { 'tournament': tournament.id, 'game': game.id})}}';"/></td>
+        <td>{{ game.black.name }}</td>
+    </tr>
+{% endfor %}
+</table>

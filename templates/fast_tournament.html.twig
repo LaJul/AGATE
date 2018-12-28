@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    
+    <div id="fast-tournament">
+    
+        <div id="players-list">
+        
+        <form style="display: block" action="{{ path('player_create', {'tournament': tournament.id})}}" method="get">
+            <input type="text" name="name" placeholder="Name" required="true">
+            <input type="text" name="rating" placeholder="Rating"><br>
+        </form>
+        
+        <table>
+            {% for player in tournament.players %}
+            <tr class="player"> 
+                <td>{{ player.pairingNumber }}</td>
+                <td>{{ player.name }}</td>
+                <td>{{ player.rating }}</td>
+                <td>{{ player.points }}</td>
+                <td><input type="button" value="SUPPRIMER" onclick="window.location='{{ path('player_destroy', { 'tournament': tournament.id, 'player': player.id})}}';"/></td>
+            </tr>
+            {% endfor %}
+        </table>
+            
+        </div>
+    
+        <div id="round-info">
+               
+            <div style="text-align: center">
+                {% if (round != null) %}
+                    Ronde {{ round.number }}
+                {% endif %}
+            </div>
+            
+            <div id="actions-list">
+                
+                <div style="width:33%;text-align: center; display: inline-block;">
+                    {% if (round.number != 1) %}
+                    <input type="button" value="PREC" onclick="window.location='{{ path('round_show', {'tournament': tournament.id, 'round': round.previousRound.id})}}';"/>
+                    {% endif %}
+                    
+                </div>
+
+                <div style="width:33%;text-align: center; display: inline-block" >
+                    {% if (round.games is empty) %}
+                    <input type="button" value="APPARIER" onclick="window.location='{{ path('round_pair', {'tournament': tournament.id})}}';"/>
+                    {% else %}
+                    <input type="button" value="DESAPPARIER" onclick="window.location='{{ path('round_unpair', {'tournament': tournament.id})}}';"/>
+                    {% endif %}
+                </div>
+
+                <div  style="width:33%;text-align: center; display: inline-block;float:right">
+                    {% if (round.getNextRound() is not empty) %}
+                    <input type="button" value="SUIV" onclick="window.location='{{ path('round_show', {'tournament': tournament.id, 'round': round.nextRound.id})}}';"/>
+                    {% else %}
+                    <input type="button" value="SUIV" onclick="window.location='{{ path('round_create', {'tournament': tournament.id})}}';"/>
+                    {% endif %}
+                </div>
+                
+            </div>
+        
+            <div id="games-list">
+            <table>
+                {% if (round.games is not empty) %}
+                        <tr>
+                        <th>Board</th>
+                        <th>Pts</th>
+                        <th>White</th>
+                        <th></th>
+                        <th>Res.</th>
+                        <th>Noirs</th>
+                        <th></th>
+                        <th>Pts</th></tr>
+                {% for game in round.games %}
+                
+                    <tr class="game"> 
+                        <td>{{ game.number }}</td>
+                        <td>{{ game.whitePoints }}</td>
+                        <td>{{ game.white.name }}</td>
+                        <td>{{ game.white.rating }}</td>
+                        <td>
+                            <select id="result" onChange="window.location='{{ path('set_game_result', { 'tournament': tournament.id, 'game': game.id})}}'+'?result='+this.value">
+                                <option value="" {% if (game.result is empty) %} selected {% endif %}></option>
+                                <option value="1-0" {% if (game.result == "1-0") %} selected {% endif %}>1 - 0</option>
+                                <option value="X-X" {% if (game.result == "X-X") %} selected {% endif %}>X - X</option>
+                                <option value="0-1" {% if (game.result == "0-1") %} selected {% endif %}>0 - 1</option>
+                            </select>
+                            {#<input type="button" value="{{ game.result }}" #}
+                        </td>
+                        <td>{{ game.black.name }}</td>
+                        <td>{{ game.black.rating }}</td>
+                        <td>{{ game.blackPoints }}</td>
+                    </tr>
+                {% endfor %}
+                {% endif %}
+            </table>
+            </div>
+
+        </div>
+  
+</div>
+
+{% endblock %}
