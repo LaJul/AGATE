@@ -25,6 +25,10 @@ class Game {
     public static $WHITE_WINS = "1-0";
     public static $DRAW = "X-X";
     public static $BLACK_WINS = "0-1";
+    public static $WHITE_WINS_BY_FORFAIT = "1-F";
+    public static $BLACK_WINS_BY_FORFAIT = "F-1";
+    public static $DOUBLE_LOSS = "0-0";
+   
     
      /**
      * @ORM\Column(name="id",type="integer")
@@ -68,6 +72,11 @@ class Game {
      */
     private $result;
     
+      /**
+     * @ORM\Column(name="$isResultLocked",type="string")
+     */
+    //private $isResultLocked;
+    
      /**
      * @ORM\Column(name="pgn",type="string",length=3, nullable=true)
      */
@@ -85,6 +94,7 @@ class Game {
         $this->whitePoints = $white->getPoints();
         $this->black = $black;
         $this->blackPoints = $black->getPoints();
+        $this->result = "";
     }
     
     /**
@@ -133,6 +143,21 @@ class Game {
     public function getBlackPoints()
     {
         return $this->blackPoints;
+    }
+    
+    /**
+     * @return Game
+     */ 
+    public function permute()
+    {
+        $player = $this->white;
+        
+        $this->white = $this->black;
+        $this->whitePoints = $this->white->getPoints();
+        $this->black = $player;
+        $this->blackPoints = $this->black->getPoints();
+        
+        return $this;
     }
     
       /**

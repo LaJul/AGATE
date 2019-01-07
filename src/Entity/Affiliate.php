@@ -83,15 +83,8 @@ class Affiliate {
      */ 
     public function __construct()
     {
-        $this->name = "MVL";
-        $this->title = "GM";
-        $this->gender = "M";
-        
         $this->isActive = true;
         
-        $this->rating = 2900;
-        $this->rapid = 2900;
-        $this->blitz = 2900;
         $this->ratingType = "F";
         $this->rapidType = "F";
         $this->blitzType = "F";
@@ -113,6 +106,15 @@ class Affiliate {
         return $this->name;
     }
     
+     /**
+     * @return self
+     */ 
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+    
     /**
      * @return string
      */ 
@@ -127,6 +129,17 @@ class Affiliate {
     public function getRating()
     {
         return $this->rating;
+    }
+    
+      /**
+     * @param integer $rating
+     * @return Affiliate
+     */ 
+    public function setRating($rating)
+    {
+        $this->rating = $rating;
+        
+        return $this;
     }
     
      /**

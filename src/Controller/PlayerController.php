@@ -2,20 +2,18 @@
 
 namespace App\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
 use App\Entity\Affiliate;
 use App\Entity\Tournament;
 use App\Entity\Player;
 
-class PlayerController extends Controller
+class PlayerController extends AbstractController
 {
     /**
-    * @Route("/tournaments/{tournament}/players", name="players_index")
-    * @Method("GET")
+    * @Route("/tournaments/{tournament}/players", name="players_index", methods={"GET"})
     */
     public function getPlayers(Request $request)
     {
@@ -59,8 +57,7 @@ class PlayerController extends Controller
     }
  
     /**
-    * @Route("/tournaments/{tournament}/players/destroy/{player}", name="player_destroy")
-    * @Method("GET")
+    * @Route("/tournaments/{tournament}/players/destroy/{player}", name="player_destroy", methods={"GET"})
     */
     public function destroyPlayer(Tournament $tournament, Player $player)
     {
@@ -72,8 +69,7 @@ class PlayerController extends Controller
     }
     
     /**
-    * @Route("/tournaments/{tournament}/players/{player}?action=pairWhite", name="player_pair_white")
-    * @Method("GET")
+    * @Route("/tournaments/{tournament}/players/{player}?action=pairWhite", name="player_pair_white", methods={"GET"})
     */
     public function pairWhitePlayer(Tournament $tournament, Player $player)
     {        
@@ -87,8 +83,7 @@ class PlayerController extends Controller
     }
     
      /**
-    * @Route("/tournaments/{tournament}/players/{player}?action=pairBlack", name="player_pair_black")
-    * @Method("GET")
+    * @Route("/tournaments/{tournament}/players/{player}?action=pairBlack", name="player_pair_black", methods={"GET"})
     */
     public function pairBlackPlayer(Tournament $tournament, Player $player)
     {        
@@ -100,5 +95,4 @@ class PlayerController extends Controller
         
         return $this->redirectToRoute('tournaments_fast_show', array('tournament' => $tournament->getId()));
     }
-    
 }

@@ -42,7 +42,7 @@ class SwissManager
     {
         $currentRound = $tournament->getCurrentRound();
         
-        $this->updateResults($tournament);
+        $this->confirmResults($tournament);
         
         $round = new Round($tournament, $currentRound->getNumber()+1);
         
@@ -55,11 +55,10 @@ class SwissManager
         return $round;
     }
     
-    public function pairRound(Tournament $tournament)
+    public function pairRound(Tournament $tournament, Round $round)
     {
         $playerRepository = $this->em->getRepository('App\Entity\Player');
 
-        $round = $tournament->getCurrentRound();
         $this->logger->info('Appariement de la ronde '.$round->getNumber());
 
         if ($round->getNumber() == 1)
@@ -82,7 +81,19 @@ class SwissManager
         return $round;
     }
     
-    public function unpairRound(Tournament $tournament)
+    public function unpairRound(Round $round)
+    {
+        $games = $round->getGames();
+        
+        foreach ($games as $game)
+        {
+            $this->em->remove($game);
+        }
+        
+        $this->em->flush();
+    }
+  
+    public function confirmResults(Tournament $tournament)
     {
         $games = $tournament->getCurrentRound()->getGames();
         
@@ -93,7 +104,8 @@ class SwissManager
         
         $this->em->flush();
     }
-  
+    
+    
     /* 
      * Private methods
     */
@@ -106,6 +118,26 @@ class SwissManager
     private static function cmpGroups($a, $b)
     {
         return $a[0]->getPoints() < $b[0]->getPoints();
+    }
+    
+     private static function cmpPairings($a, $b)
+    {
+       // Score of the "strongest" player
+        $delta =  $a[0]->getPoints() < $b[0]->getPoints();
+        
+        if ($delta == 0)
+        {
+            // Sum of the score of the two players
+            $delta =  $a[0]->getPoints() + $a[1]->getPoints() < $b[0]->getPoints() + $b[1]->getPoints();
+            
+            if ($delta == 0)
+            {
+                // Pairing number of the "strongest" player
+                $delta =  $a[0]->getPairingNumber() > $b[0]->getPairingNumber();
+            }
+        }
+        
+        return $delta;
     }
     
     private static function wantWhite($player)
@@ -201,6 +233,10 @@ class SwissManager
         {
             $this->logger->info('Traitement du groupe '.$points.' pts');
 
+            uasort($group, array($this, "cmpPlayers"));
+
+            // C2 & C3
+            
             // Joker
             $x = 0;
             
@@ -219,62 +255,72 @@ class SwissManager
             {
                 $x = $w-$q;
             }
-
+            
+            // C4 & C5
             $S1 = array_splice($group, 0, $q);
             $S2 = $group;
 
-            // S1 index
-            $i = 0;
-            //S2 index
-            $j = 0;
-
-            while ($i != count($S1))
-            {
-                // Player of the strong group
-                $S1Player = $S1[$i];
-                // Player of the weak group
-                $S2Player = $S2[$j];
+            $pairingsPerGroup = count($S1);
                 
-                $this->logger->info("Test de ".$S1Player->getName()." contre ".$S2Player->getName());
-
-                $this->setColourPreference($S1Player);
-                $this->setColourPreference($S2Player);
-              
-                if ($this->testAbsoluteCriteria($S1Player, $S2Player))
-                {
-                    // Keep the pairing   
-                    if ($this->wantWhite($S1Player) && !$this->wantWhite($S2Player) ||
-                        $this->wantBlack($S2Player) &&  !$this->wantBlack($S1Player))
+            while ($pairingsPerGroup > 0){
+                                    
+                    // S1 index
+                    $i = 0;
+                    // S2 index
+                    $j = 0;
+                
+                    // Number of perturbed tables
+                    $k = $x;
+                    
+                    while ($i != count($S1))
                     {
-                        $pairings[$n-1] = array($n, $S1Player, $S2Player);
-                        $n++;
+                        // C6
+
+                        // Player of the strong group
+                        $S1Player = $S1[$i];
+                        // Player of the weak group
+                        $S2Player = $S2[$j];
+
+                        $this->logger->info("Test de ".$S1Player->getName()." contre ".$S2Player->getName());
+
+                        $this->setColourPreference($S1Player);
+                        $this->setColourPreference($S2Player);
+
+                        if ($this->AssertAbsoluteCriteria($S1Player, $S2Player))
+                        {
+                            if ($this->AssertRelativeCriteria($S1Player, $S2Player))
+                            {
+                                $pairings[$n-1] = array($S1Player, $S2Player);
+                                $n++;
+                            
+                                $i++;
+                                $j++;
+                                $pairingsPerGroup--;
+                            }
+                            else if ($k > 0)
+                            {
+                                $pairings[$n-1] = array($S1Player, $S2Player);
+                                $n++;
+                            
+                                $i++;
+                                $j++;
+                                $pairingsPerGroup--;
+                                
+                                $k-- ;
+                            }
+                            else
+                            {
+                                dump($S2);
+                                $this->permute($S2);
+                                dump($S2);
+                            }
+                        }
+                        else
+                        {
+                          $this->permute($S2);
+                        }
                     }
-                    else if ($this->wantBlack($S1Player) && !$this->wantBlack($S2Player) ||
-                        $this->wantWhite($S2Player) &&  !$this->wantWhite($S1Player))
-                    {    
-                        $pairings[$n-1] = array($n, $S2Player, $S1Player);
-                        $n++;
-                    }
-                    else if ($this->wantWhite($S1Player))
-                    {    
-                        $pairings[$n-1] = array($n, $S1Player, $S2Player);
-                        $n++;
-                    }
-                    else if ($this->wantBlack($S1Player))
-                    {    
-                        $pairings[$n-1] = array($n, $S2Player, $S1Player);
-                        $n++;
-                    }
-                    $i++;
-                    $j++;
                 }
-                else
-                {
-                    // Permutation
-                    while (true)
-                    {}
-                }
-            }
         }
 
         return $pairings;
@@ -282,17 +328,62 @@ class SwissManager
     
     private function createGames($round, $pairings)
     {
+        uasort($pairings, array($this, "cmpPairings"));
+
+        $n = 1;
+        
+        $S1ColourPreference = SwissManager::$ABS_BLACK_PREF;
+        $S2ColourPreference = SwissManager::$ABS_WHITE_PREF;
+        
         // Once the pairings are validated, create the games
         foreach($pairings as $pairing)
         { 
-           $game = new Game($round, $pairing[0], $pairing[1], $pairing[2]);
-           $this->em->persist($game);
+            $S1Player = $pairing[0];
+            $S2Player = $pairing[1];
+            
+            if ($round->getNumber() == 1)
+            {
+                $S1Player->setColourPreference($S1ColourPreference);
+                $S2Player->setColourPreference($S2ColourPreference);
+                
+                $S1ColourPreference = $S2Player->getColourPreference();
+                $S2ColourPreference = $S1Player->getColourPreference();
+            }
+            
+            if ($this->wantWhite($S1Player) && !$this->wantWhite($S2Player) ||
+                $this->wantBlack($S2Player) &&  !$this->wantBlack($S1Player))
+            {
+                $white = $S1Player;
+                $black = $S2Player;
+            }
+            else if ($this->wantBlack($S1Player) && !$this->wantBlack($S2Player) ||
+                     $this->wantWhite($S2Player) &&  !$this->wantWhite($S1Player))
+            {    
+                $white = $S2Player;
+                $black = $S1Player;
+            }
+            else if ($this->wantWhite($S1Player))
+            {    
+                $white = $S1Player;
+                $black = $S2Player;
+            }
+            else if ($this->wantBlack($S1Player))
+            {    
+                $white = $S2Player;
+                $black = $S1Player;
+            }
+            
+            $game = new Game($round, $n, $white, $black);
+           
+            $this->em->persist($game);
+           
+            $n++;
         }
         
         $this->em->flush();
     }
     
-    private function testAbsoluteCriteria($player1, $player2)
+    private function AssertAbsoluteCriteria($player1, $player2)
     {
         $gameRepository = $this->em->getRepository('App\Entity\Game');
 
@@ -322,5 +413,60 @@ class SwissManager
         $this->logger->info("Appariement possible entre ".$player1." et ".$player2);
         
         return true;
+    }
+    
+    private function AssertRelativeCriteria($player1, $player2)
+    {
+        return true;
+    }
+    
+    
+   /**
+ * Find a next array permutation
+ * 
+ * @param array $input
+ * @return boolean
+ */
+function permute(&$input)
+{
+	$inputCount = count($input);
+	// the head of the suffix
+	$i = $inputCount - 1;
+	// find longest suffix
+	while ($i > 0 && $input[$i] <= $input[$i - 1]) {
+		$i--;
+	}
+	//are we at the last permutation already?
+	if ($i <= 0) {
+		return false;
+	}
+	// get the pivot
+	$pivotIndex = $i - 1;
+	// find rightmost element that exceeds the pivot
+	$j = $inputCount - 1;
+	while ($input[$j] <= $input[$pivotIndex]) {
+		$j--;
+	}
+		
+	// swap the pivot with j
+	$temp = $input[$pivotIndex];
+	$input[$pivotIndex] = $input[$j];
+	$input[$j] = $temp;
+	// reverse the suffix
+	$j = $inputCount - 1;
+	while ($i < $j) {
+	        $temp = $input[$i];
+	        $input[$i] = $input[$j];
+	        $input[$j] = $temp;
+	        $i++;
+	        $j--;
+	}
+	return true;
+}
+
+    
+    private function switchPlayers($group1, $group2)
+    {
+    
     }
 }

@@ -37,24 +37,22 @@
                 
                 <div style="width:33%;text-align: center; display: inline-block;">
                     {% if (round.number != 1) %}
-                    <input type="button" value="PREC" onclick="window.location='{{ path('round_show', {'tournament': tournament.id, 'round': round.previousRound.id})}}';"/>
+                    <input type="button" value="PREC" onclick="window.location='{{ path('round_show', {'tournament_id': tournament.id, 'round_number': round.previousRound.number})}}';"/>
                     {% endif %}
-                    
                 </div>
 
                 <div style="width:33%;text-align: center; display: inline-block" >
-                    {% if (round.games is empty) %}
-                    <input type="button" value="APPARIER" onclick="window.location='{{ path('round_pair', {'tournament': tournament.id})}}';"/>
-                    {% else %}
-                    <input type="button" value="DESAPPARIER" onclick="window.location='{{ path('round_unpair', {'tournament': tournament.id})}}';"/>
+                    
+                    {% if round.isPairable() %}
+                    <input type="button" value="APPARIER" onclick="window.location='{{ path('round_pair', {'tournament_id': tournament.id, 'round_number': round.number})}}';"/>
+                    {% elseif round.isUnpairable()%}
+                    <input type="button" value="DESAPPARIER" onclick="window.location='{{ path('round_unpair', {'tournament_id': tournament.id, 'round_number': round.number})}}';"/>
                     {% endif %}
                 </div>
 
                 <div  style="width:33%;text-align: center; display: inline-block;float:right">
                     {% if (round.getNextRound() is not empty) %}
-                    <input type="button" value="SUIV" onclick="window.location='{{ path('round_show', {'tournament': tournament.id, 'round': round.nextRound.id})}}';"/>
-                    {% else %}
-                    <input type="button" value="SUIV" onclick="window.location='{{ path('round_create', {'tournament': tournament.id})}}';"/>
+                    <input type="button" value="SUIV" onclick="window.location='{{ path('round_show', {'tournament_id': tournament.id, 'round_number': round.nextRound.number})}}';"/>
                     {% endif %}
                 </div>
                 
@@ -80,7 +78,7 @@
                         <td>{{ game.white.name }}</td>
                         <td>{{ game.white.rating }}</td>
                         <td>
-                            <select id="result" onChange="window.location='{{ path('set_game_result', { 'tournament': tournament.id, 'game': game.id})}}'+'?result='+this.value">
+                            <select id="result" onChange="window.location='{{ path('set_game_result', { 'tournament_id': tournament.id, 'game_id': game.id})}}'+'?result='+this.value">
                                 <option value="" {% if (game.result is empty) %} selected {% endif %}></option>
                                 <option value="1-0" {% if (game.result == "1-0") %} selected {% endif %}>1 - 0</option>
                                 <option value="X-X" {% if (game.result == "X-X") %} selected {% endif %}>X - X</option>

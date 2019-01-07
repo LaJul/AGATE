@@ -1,11 +1,12 @@
 
-
 <div style="text-align: center">
     <input type="button" value="RDE. PREC."/>
 </div>
 
 <div style="text-align: center">
-    <input type="button" value="APPARIER" onclick="window.location='{{ path('tournaments_pair', {'tournament': tournament.id})}}';"/>
+    {% if round.isPairable()%}
+        <input type="button" value="APPARIER" onclick="window.location='{{ path('tournaments_pair', {'tournament_id': tournament.id})}}';"/>
+    {% endif %}
 </div>
 
 <div style="text-align: center">

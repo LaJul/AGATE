@@ -2,28 +2,31 @@
 
 namespace App\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
 use App\Entity\Tournament;
 use App\Entity\Game;
 
-class GameController extends Controller
+class GameController extends AbstractController
 {
    /**
-     * @Route("/tournaments/{tournament}/games/{game}", name="set_game_result")
+     * @Route("/tournaments/{tournament_id}/games/{game_id}", name="set_game_result")
      */
-    public function setGameResult(Request $request, Tournament $tournament, Game $game)
+    public function setGameResult(Request $request, int $tournament_id, int $game_id)
     {
         $em = $this->get('doctrine')->getManager(); 
 
+        $tournament = $em->getRepository(Tournament::class)->find($tournament_id);
+        $game = $em->getRepository(Game::class)->find($game_id);
+        
         $game->setResult($request->query->get('result'));
         
         $em->persist($game);
         $em->flush();
         
-        return $this->redirectToRoute('tournaments_show', array('tournament' => $tournament->getId()));
+        return $this->redirectToRoute('tournaments_show', array('tournament_id' => $tournament->getId()));
     }
     
      /**

@@ -9,6 +9,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+
 
 /**
  * Description of Player
@@ -241,12 +243,20 @@ class Player {
         return $this->colourPreference;
     }
     
-     /**
+      /**
      * @return float
      */ 
     public function getColourDifference()
     {
         return count($this->whiteGames) - count($this->blackGames);
+    }
+    
+     /**
+     * @return boolean
+     */ 
+    public function isPaired()
+    {
+        return (count($this->whiteGames) + count($this->blackGames)) == $this->getTournament()->getCurrentRound();
     }
     
     public function getNbWins()

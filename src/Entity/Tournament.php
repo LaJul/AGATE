@@ -68,7 +68,7 @@ class Tournament {
     private $timeControl;
     
      /**
-     * @ORM\OneToMany(targetEntity="Round", mappedBy="tournament", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="Round", mappedBy="tournament")
      */
     private $rounds;
     
@@ -81,7 +81,6 @@ class Tournament {
      * @ORM\OneToOne(targetEntity="Round")
      */
     private $currentRound;
-    
    
     public function __construct()
     {
@@ -218,6 +217,13 @@ class Tournament {
     {
         $iterator = $this->players->getIterator();
         $iterator->uasort(function ($a, $b) {
+            
+            $pointsDelta = $a->getPoints() > $b->getPoints();
+            
+            if ($pointsDelta != 0)
+            {
+                return $pointsDelta;
+            }
             return ($a->getPairingNumber() < $b->getPairingNumber()) ? -1 : 1;
         });
         $players = new ArrayCollection(iterator_to_array($iterator));
@@ -227,7 +233,7 @@ class Tournament {
     /**
      * @return integer
      */ 
-    public function getRounds($number)
+    public function getRound($number)
     {
         return $this->rounds[$number-1];
     }

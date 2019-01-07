@@ -2,10 +2,8 @@
 
 namespace App\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -16,7 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use App\Entity\Tournament;
 use App\Entity\Round;
 
-class TournamentController extends Controller
+class TournamentController extends AbstractController
 {
     /**
     * @Route("/")
@@ -27,13 +25,13 @@ class TournamentController extends Controller
         
         $repository = $em->getRepository(Tournament::class);
         
-        $tournament = $repository->find(12);
-        return $this->redirectToRoute('tournaments_show', array('tournament' => $tournament->getId()));
+        $tournament = $repository->findOneByName("InterZonal");
+
+        return $this->redirectToRoute('tournaments_show', array('tournament_id' => $tournament->getId()));
     }
     
     /**
-    * @Route("/tournaments", name="tournaments_fast")
-    * @Method("GET")
+    * @Route("/tournaments", name="tournaments_fast", methods={"GET"})
     */
     public function createTournament(Request $request)
     {    
@@ -54,10 +52,8 @@ class TournamentController extends Controller
     }
     
     /**
-    * @Route("/tournaments_long", name="tournaments_new")
-    * @Route("/tournaments_long", name="tournaments_create")
-    * @Method({"GET", "POST"})
-    * @Template("create_tournament.html.twig") 
+    * @Route("/tournaments_long", name="tournaments_new", methods={"GET", "POST"})
+    * @Route("/tournaments_long", name="tournaments_create", methods={"GET", "POST"})
     */
     public function createLongTournament(Request $request)
     {    
@@ -112,11 +108,12 @@ class TournamentController extends Controller
     }
    
     /**
-     * @Route("/tournaments/{tournament}", name="tournaments_show", requirements={"tournament"="\d+"})
-     * @Method("GET")
+     * @Route("/tournaments/{tournament_id}", name="tournaments_show")
      */
-    public function getTournament(Tournament $tournament)
-    {      
-        return $this->redirectToRoute('round_show', array('tournament' => $tournament->getId(), 'round' => $tournament->getCurrentRound()->getId()));
+    public function getTournament(int $tournament_id)
+    {    
+        $tournament = $this->get('doctrine')->getManager()->getRepository(Tournament::class)->find($tournament_id);  
+
+        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $tournament->getCurrentRound()->getNumber()));
     }
 }

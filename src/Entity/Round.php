@@ -44,7 +44,7 @@ class Round {
     private $startDate;
     
     /**
-    * @ORM\OneToMany(targetEntity="Game", mappedBy="round", cascade={"persist", "remove"})
+    * @ORM\OneToMany(targetEntity="Game", mappedBy="round")
     */
     private $games;
     
@@ -83,7 +83,7 @@ class Round {
      */ 
     public function getPreviousRound()
     {
-        return $this->tournament->getRounds($this->number - 1);    
+        return $this->tournament->getRound($this->number - 1);    
     }    
     
      /**
@@ -91,6 +91,52 @@ class Round {
      */ 
     public function getNextRound()
     {
-        return $this->tournament->getRounds($this->number + 1);    
-    }    
+        return $this->tournament->getRound($this->number + 1);    
+    }
+
+    /**
+     * @return boolean
+     */ 
+    public function isCurrentRound()
+    {
+        return $this->tournament->getCurrentRound()->getNumber() == $this->number;    
+    }   
+    
+    /**
+     * @return boolean
+     */ 
+    public function isOver()
+    {
+        return !$this->games->isEmpty() && (!$this->games->exists(function($key, $element) {
+            return $element->getResult() === "";
+        }));    
+    }   
+    
+    /**
+     * @return boolean
+     */ 
+    public function isPairable()
+    {
+        if ($this->getPreviousRound() != NULL)
+        {
+            return $this->getPreviousRound()->isOver() && $this->games->isEmpty();
+        }
+        
+        return $this->games->isEmpty();
+        
+    } 
+    
+      /**
+     * @return boolean
+     */ 
+    public function isUnpairable()
+    {
+        if ($this->getNextRound() != NULL)
+        {
+            return $this->getNextRound()->getGames()->isEmpty() && !$this->games->isEmpty();
+        }
+        
+        return !$this->games->isEmpty();
+        
+    } 
 }

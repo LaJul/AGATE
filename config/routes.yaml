@@ -1,3 +1,7 @@
 #index:
 #    path: /
 #    controller: App\Controller\TournamentController::index
+app:
+    resource: App\Controller\TournamentController
+    type:     annotation
+    

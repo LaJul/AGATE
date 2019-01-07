@@ -2,56 +2,69 @@
 
 namespace App\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 use App\Entity\Tournament;
-use App\Entity\Round;
 use App\Service\SwissManager;
 
-class RoundController extends Controller
+class RoundController extends AbstractController
 {
      /**
-     * @Route("/tournaments/{tournament}/rounds/{round}", name="round_show", requirements={"round"="\d+"})
-     * @Method("GET")
+     * @Route("/tournaments/{tournament_id}/rounds/{round_number}", name="round_show", requirements={"round_number"="\d+"}, methods={"GET"})
      */
-    public function getRound(Tournament $tournament, Round $round)
+    public function getRound(int $tournament_id, int $round_number)
     {     
+        $em = $this->get('doctrine')->getManager();
+        
+        $tournament = $em->getRepository(Tournament::class)->find($tournament_id);  
+        $round = $tournament->getRound($round_number);  
+        
         return $this->render("fast_tournament.html.twig", array('tournament' => $tournament, 'round' => $round));
     }
     
     /**
-    * @Route("/tournaments/{tournament}/rounds/", name="round_create")
-    * @Method("GET")
+    * @Route("/tournaments/{tournament_id}/rounds/", name="round_create", methods={"GET"})
     */
-    public function createRound(Tournament $tournament, SwissManager $swissManager)
+    public function createRound(int $tournament_id, SwissManager $swissManager)
     {
+        $em = $this->get('doctrine')->getManager();
+        
+        $tournament = $em->getRepository(Tournament::class)->find($tournament_id);  
+        
         $round = $swissManager->createRound($tournament);
         
-        return $this->redirectToRoute('round_show', array('tournament' => $tournament->getId(), 'round' => $round->getId()));
+        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round->getNumber()));
     }
     
     /**
-    * @Route("/tournaments/{tournament}/rounds/pair", name="round_pair")
-    * @Method("GET")
+    * @Route("/tournaments/{tournament_id}/rounds/{round_number}/pair", name="round_pair", methods={"GET"})
     */
-    public function pairRound(Tournament $tournament, SwissManager $swissManager)
+    public function pairRound(int $tournament_id, int $round_number, SwissManager $swissManager)
     {
-        $swissManager->pairRound($tournament);
-
-        return $this->redirectToRoute('round_show', array('tournament' => $tournament->getId(), 'round' => $tournament->getCurrentRound()->getId()));
-    }
-    
-    /**
-    * @Route("/tournaments/{tournament}/rounds/unpair", name="round_unpair")
-    * @Method("GET")
-    */
-    public function unpairRound(Tournament $tournament, SwissManager $swissManager)
-    {
-        $swissManager->unpairRound($tournament);
+        $em = $this->get('doctrine')->getManager();
         
-        return $this->redirectToRoute('round_show', array('tournament' => $tournament->getId(), 'round' => $tournament->getCurrentRound()->getId()));
+        $tournament = $em->getRepository(Tournament::class)->find($tournament_id);  
+        $round = $tournament->getRound($round_number);  
+
+        $swissManager->pairRound($tournament, $round);
+
+        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round->getNumber()));
+    }
+    
+    /**
+    * @Route("/tournaments/{tournament_id}/rounds/{round_number}/unpair", name="round_unpair", methods={"GET"})
+    */
+    public function unpairRound(int $tournament_id, int $round_number, SwissManager $swissManager)
+    {
+        $em = $this->get('doctrine')->getManager();
+        
+        $tournament = $em->getRepository(Tournament::class)->find($tournament_id);
+        $round = $tournament->getRound($round_number);  
+
+        $swissManager->unpairRound($round);
+        
+        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round->getNumber()));
 
     }
 }
