@@ -12,21 +12,22 @@ use App\Entity\Game;
 class GameController extends AbstractController
 {
    /**
-     * @Route("/tournaments/{tournament_id}/games/{game_id}", name="set_game_result")
+     * @Route("/tournaments/{tournament_id}/rounds/{round_number}/games/{game_number}", name="set_game_result")
      */
-    public function setGameResult(Request $request, int $tournament_id, int $game_id)
+    public function setGameResult(Request $request, int $tournament_id, int $round_number, int $game_number)
     {
         $em = $this->get('doctrine')->getManager(); 
 
         $tournament = $em->getRepository(Tournament::class)->find($tournament_id);
-        $game = $em->getRepository(Game::class)->find($game_id);
+        $round = $tournament->getRound($round_number);
+        $game = $round->getGame($game_number);
         
         $game->setResult($request->query->get('result'));
         
         $em->persist($game);
         $em->flush();
         
-        return $this->redirectToRoute('tournaments_show', array('tournament_id' => $tournament->getId()));
+        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round->getNumber()));
     }
     
      /**

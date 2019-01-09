@@ -67,7 +67,7 @@
                         <th>White</th>
                         <th></th>
                         <th>Res.</th>
-                        <th>Noirs</th>
+                        <th>Black</th>
                         <th></th>
                         <th>Pts</th></tr>
                 {% for game in round.games %}
@@ -78,7 +78,7 @@
                         <td>{{ game.white.name }}</td>
                         <td>{{ game.white.rating }}</td>
                         <td>
-                            <select id="result" onChange="window.location='{{ path('set_game_result', { 'tournament_id': tournament.id, 'game_id': game.id})}}'+'?result='+this.value">
+                            <select id="result" onChange="window.location='{{ path('set_game_result', { 'tournament_id': tournament.id, 'round_number': round.number, 'game_number': game.number})}}'+'?result='+this.value">
                                 <option value="" {% if (game.result is empty) %} selected {% endif %}></option>
                                 <option value="1-0" {% if (game.result == "1-0") %} selected {% endif %}>1 - 0</option>
                                 <option value="X-X" {% if (game.result == "X-X") %} selected {% endif %}>X - X</option>

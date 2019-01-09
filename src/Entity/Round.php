@@ -78,6 +78,14 @@ class Round {
         return $this->games;
     }
     
+     /**
+     * @return entities
+     */ 
+    public function getGame(int $number)
+    {
+        return $this->games[$number-1];
+    }
+    
     /**
      * @return Round
      */ 

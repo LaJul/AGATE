@@ -114,6 +114,6 @@ class TournamentController extends AbstractController
     {    
         $tournament = $this->get('doctrine')->getManager()->getRepository(Tournament::class)->find($tournament_id);  
 
-        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $tournament->getCurrentRound()->getNumber()));
+        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => 1));
     }
 }

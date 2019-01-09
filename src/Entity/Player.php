@@ -274,9 +274,24 @@ class Player {
      */ 
     public function getPoints()
     {
-        return $this->getNbWins() * 1 + $this->getNbDraws() * 0.5;
+        return (float) $this->getNbWins() * 1 + $this->getNbDraws() * 0.5;
     }
-
+    
+    public function floatedUp()
+    {
+        return $this->whiteGames->filter(function($game) {
+            return $game->getWhiteFloat() == 'UP';
+        });
+    }
+    
+    public function floatedDown()
+    {
+        return $this->whiteGames->filter(function($game) {
+            return $game->getWhiteFloat() == 'DOWN';
+        });
+    }
+    
+    
     private function getWhiteWins()
     {
         return $this->whiteGames->filter(function($game) {
@@ -310,6 +325,6 @@ class Player {
      */
     public function __toString()
     {
-        return $this->name." ".$this->rating." "." : ".$this->getPoints();
+        return $this->name."(".$this->pairingNumber.") ".$this->rating." "." : ".$this->getPoints();
     }
 }

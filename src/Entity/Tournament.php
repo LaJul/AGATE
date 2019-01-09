@@ -217,13 +217,12 @@ class Tournament {
     {
         $iterator = $this->players->getIterator();
         $iterator->uasort(function ($a, $b) {
-            
-            $pointsDelta = $a->getPoints() > $b->getPoints();
-            
-            if ($pointsDelta != 0)
+                        
+            if (!($a->getPoints() == $b->getPoints()))
             {
-                return $pointsDelta;
+                return $a->getPoints() > $b->getPoints() ? -1 : 1;
             }
+
             return ($a->getPairingNumber() < $b->getPairingNumber()) ? -1 : 1;
         });
         $players = new ArrayCollection(iterator_to_array($iterator));

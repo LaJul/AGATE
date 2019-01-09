@@ -53,9 +53,14 @@ class Game {
     private $white;
    
     /**
-     * @ORM\Column(name="whitePoints",type="integer")
+     * @ORM\Column(name="whitePoints",type="float")
      */
     private $whitePoints;
+    
+       /**
+     * @ORM\Column(name="$whiteFloat",type="string", nullable=true)
+     */
+    private $whiteFloat;
     
      /**
      * @ORM\ManyToOne(targetEntity="Player", inversedBy="blackGames")
@@ -63,9 +68,15 @@ class Game {
     private $black;
     
      /**
-     * @ORM\Column(name="blackPoints",type="integer")
+     * @ORM\Column(name="blackPoints",type="float")
      */
     private $blackPoints;
+    
+    
+      /**
+     * @ORM\Column(name="$blackFloat",type="string", nullable=true)
+     */
+    private $blackFloat;
     
      /**
      * @ORM\Column(name="result",type="string",length=3, nullable=true)

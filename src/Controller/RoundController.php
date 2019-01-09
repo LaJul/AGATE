@@ -18,7 +18,7 @@ class RoundController extends AbstractController
         $em = $this->get('doctrine')->getManager();
         
         $tournament = $em->getRepository(Tournament::class)->find($tournament_id);  
-        $round = $tournament->getRound($round_number);  
+        $round = $tournament->getRound($round_number);
         
         return $this->render("fast_tournament.html.twig", array('tournament' => $tournament, 'round' => $round));
     }
