@@ -1,0 +1,19 @@
+
+<div style="text-align: center">
+    <input type="button" value="NOUVEAU JOUEUR" onclick="window.location='{{ path('players_create', {'tournament': tournament.id, 'affiliate': 1})}}';"/>
+    <input type="text" class='mySearch' id="ls_query" placeholder="Type to start searching ...">
+</div>
+
+<table>
+{% for player in tournament.players %}
+    <tr class="player"> 
+        <td>{{ player.pairingNumber }}</td>
+        <td>{{ player.title }}</td>
+        <td>{{ player.name }}</td>
+        <td>{{ player.rating }}</td>
+        <td>{{ player.points }}</td>
+        <td><input type="button" value="SUPPRIMER" onclick="window.location='{{ path('players_destroy', { 'tournament': tournament.id, 'player': player.id})}}';"/></td>
+    </tr>
+{% endfor %}
+</table>
+
