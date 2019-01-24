@@ -15,7 +15,7 @@ use App\Service\TiebreakInterface;
  *
  * @author Aspom
  */
-class BlackGamesTiebreak implements TiebreakInterface
+class DirectEncounterTiebreak implements TiebreakInterface
 {
     public function compare($player1, $player2) {
         return $player1->getBlackGames() - $player2->getWhiteGames();

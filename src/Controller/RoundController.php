@@ -13,12 +13,14 @@ class RoundController extends AbstractController
      /**
      * @Route("/tournaments/{tournament_id}/rounds/{round_number}", name="round_show", requirements={"round_number"="\d+"}, methods={"GET"})
      */
-    public function getRound(int $tournament_id, int $round_number)
+    public function getRound(int $tournament_id, int $round_number, SwissManager $swissManager)
     {     
         $em = $this->get('doctrine')->getManager();
         
         $tournament = $em->getRepository(Tournament::class)->find($tournament_id);  
         $round = $tournament->getRound($round_number);
+        
+        $swissManager->rankPlayers($tournament);        
         
         return $this->render("fast_tournament.html.twig", array('tournament' => $tournament, 'round' => $round));
     }
@@ -67,4 +69,31 @@ class RoundController extends AbstractController
         return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round->getNumber()));
 
     }
+    
+    /**
+     * @Route("/tournaments/{tournament_id}/rounds/{round_number}/ag", name="tournaments_ag")
+     */
+    public function getAmericangrid(int $tournament_id, int $round_number)
+    {    
+        $em = $this->get('doctrine')->getManager();
+        
+        $tournament = $em->getRepository(Tournament::class)->find($tournament_id);
+        $round = $tournament->getRound($round_number-1);  
+        
+        return $this->render("american_grid.html.twig", array('tournament' => $tournament, 'round' => $round));
+    }
+    
+     /**
+     * @Route("/tournaments/{tournament_id}/rounds/{round_number}/rk", name="tournaments_rk")
+     */
+    public function getRankings(int $tournament_id, int $round_number)
+    {    
+        $em = $this->get('doctrine')->getManager();
+        
+        $tournament = $em->getRepository(Tournament::class)->find($tournament_id);
+        $round = $tournament->getRound($round_number-1);  
+        
+        return $this->render("rankings.html.twig", array('tournament' => $tournament, 'round' => $round));
+    }
+    
 }
