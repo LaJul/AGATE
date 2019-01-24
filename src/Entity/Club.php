@@ -32,4 +32,8 @@ class Club {
      */
     private $name;
     
+    /**
+     * @ORM\OneToMany(targetEntity="Affiliate", mappedBy="club")
+     */
+    private $affiliates;
 }

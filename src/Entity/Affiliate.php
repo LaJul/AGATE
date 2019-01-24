@@ -77,7 +77,7 @@ class Affiliate {
      */
     private $blitzType;
     
-    
+
     /**
      * @return Affiliate
      */ 

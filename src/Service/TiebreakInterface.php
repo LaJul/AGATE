@@ -15,6 +15,6 @@ use App\Entity\Player;
  * @author Aspom
  */
 interface TiebreakInterface
-{
-    public function compare(Player $player1, Player $player2);
+{    
+    public function setCriteria(Player $player);
 }

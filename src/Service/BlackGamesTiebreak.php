@@ -17,7 +17,12 @@ use App\Service\TiebreakInterface;
  */
 class BlackGamesTiebreak implements TiebreakInterface
 {
+    public function setCriteria(Player $player)
+    {
+        return count($player->getBlackGames());
+    }
+    
     public function compare($player1, $player2) {
-        return $player1->getBlackGames() - $player2->getWhiteGames();
+        return count($player1->getBlackGames()) - count($player2->getWhiteGames());
     }
 }

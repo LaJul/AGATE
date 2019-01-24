@@ -69,6 +69,7 @@ class Tournament {
     
      /**
      * @ORM\OneToMany(targetEntity="Round", mappedBy="tournament")
+     * @ORM\OrderBy("number", "ASC")
      */
     private $rounds;
     

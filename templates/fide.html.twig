@@ -1,16 +1,14 @@
 
 <table>
 {% for player in tournament.players %}
-    <tr> 
+    <tr class="player"> 
         <td>{{ player.pairingNumber }}</td>
         <td>{{ player.title }}</td>
         <td>{{ player.name }}</td>
         <td>{{ player.rating }}</td>
-        <td>FRA</td>
-        <td>{{ player.rating }}</td>
-        <td>{{ player.rating }}</td>
         <td>{{ player.points }}</td>
-        <td>{{ player.ratingDelta }}</td>
+        <td>{{ player.opponentAverage }}</td>
+        <td>{{ player.fide }}</td>
 
     </tr>
 {% endfor %}

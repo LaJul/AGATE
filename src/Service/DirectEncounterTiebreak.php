@@ -9,15 +9,42 @@
 namespace App\Service;
 
 use App\Service\TiebreakInterface;
+use App\Entity\Tournament;
 
 /**
  * Description of BlackGamesTiebreak
  *
  * @author Aspom
  */
-class BlackGamesTiebreak implements TiebreakInterface
+class DirectEncounterTiebreak implements TiebreakInterface
 {
-    public function compare($player1, $player2) {
-        return $player1->getBlackGames() - $player2->getWhiteGames();
+    private $tournament;
+    
+    public function __construct(Tournament $tournament) {
+        $this->tournament = $tournament;
+    }
+    
+    public function setCriteria(Player $player) {
+        return 0;
+    }
+    
+    public function compare(Player $player1, Player $player2) {
+       
+        $game = $this->tournament->getGames()->filter(function($game) {
+            return ($game->getWhite() == $player1 && $game->getBlack() == $player2)
+            || ($game->getWhite() == $player2 && $game->getBlack() == $player1);
+        });
+         
+        if ($game == NULL || $game->getResult() == "X-X")
+        {
+            return 0;
+        }
+        else if ($game->getResult() == "1-0" && $game->getWhite() == $player1 ||
+                $game->getResult() == "0-1" && $game->getBlack() == $player1){
+            return 1;
+        }
+        else {
+            return -1;
+        }
     }
 }
