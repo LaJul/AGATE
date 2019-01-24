@@ -69,12 +69,26 @@ class SwissManager {
 
         $this->em->flush();
     }
+    
+    public function rankPlayers(Tournament $tournament)
+    {
+        $players = $tournament->getPlayers()->toArray();
+        
+        usort($players, array($this, "cmpPlayers"));
+
+        foreach ($players as $key => $player) {
+            $player->setRanking($key + 1);
+            $this->em->persist($player);
+        }
+
+        $this->em->flush();
+    }
 
     /*
      * Private methods
      */
 
-    private static function cmpPlayers($a, $b) {
+    private static function cmpInitialPlayers($a, $b) {
 
         if ($a->getPoints() == $b->getPoints()) {
 
@@ -88,6 +102,16 @@ class SwissManager {
         return $a->getPoints() < $b->getPoints() ? 1 : -1;
     }
 
+    private static function cmpPlayers($a, $b) {
+
+        if ($a->getPoints() == $b->getPoints()) {
+            return $a->getPairingNumber() == $b->getPairingNumber() ? 1 : -1;
+        }
+
+        return $a->getPoints() < $b->getPoints() ? 1 : -1;
+    }
+
+    
     private static function cmpGroups($a, $b) {
         return $a[0]->getPoints() < $b[0]->getPoints();
     }
@@ -107,7 +131,7 @@ class SwissManager {
 
         return (max($a[0]->getPoints(), $a[1]->getPoints()) < max($b[0]->getPoints(), $b[1]->getPoints())) ? 1 : -1;
     }
-
+    
     private static function wantWhite($player) {
         return $player->getColourPreference() == SwissManager::$ABS_WHITE_PREF ||
                 $player->getColourPreference() == SwissManager::$STRONG_WHITE_PREF ||
@@ -154,7 +178,7 @@ class SwissManager {
     }
 
     private function setPairingNumbers($players) {
-        usort($players, array($this, "cmpPlayers"));
+        usort($players, array($this, "cmpInitialPlayers"));
 
         foreach ($players as $pairingNumber => $player) {
             $player->setPairingNumber($pairingNumber + 1);
@@ -191,7 +215,9 @@ class SwissManager {
 
             uasort($group, array($this, "cmpPlayers"));
 
-            if (empty($floaters)) {
+            $q = floor(count($group) / 2);
+            
+            if (!empty($floaters)) {
                 $S1 = $floaters;
                 $S2 = $group;
             } else {
@@ -205,11 +231,9 @@ class SwissManager {
             $x = 0;
 
             // Players with white preference
-            $w = 0;
+            $w = count(array_filter($group, array($this, "wantWhite")));
             // Players with black preference
-            $b = 0;
-
-            $q = floor(count($group) / 2);
+            $b = count(array_filter($group, array($this, "wantBlack")));
 
             if ($b > $w) {
                 $x = $b - $q;
@@ -251,7 +275,6 @@ class SwissManager {
                     }
 
                     $this->logger->info("Test de " . $S1Player->getName() . " contre " . $S2Player->getName());
-                    sleep(1);
                  
                     if ($this->assertAbsoluteCriteria($S1Player, $S2Player)) {
                         if ($this->assertRelativeCriteria($S1Player, $S2Player)) {
@@ -451,18 +474,31 @@ class SwissManager {
     private function getSwitchTable($S1, $S2) {
 
         $switchTable = array();
-        $j = 0;
 
-        $iraz = count($S1) - 1;
+        $S1Count = count($S1);
+        $S2Count = count($S2);
+
+        if (($S1Count + $S2Count) & 1)
+        {
+            $iraz = $S1Count - 2;
+            $ilim = 0;
+
+        }
+        else {
+            $iraz = $S1Count - 1;
+            $ilim = 1;
+
+        }
+        
         $jraz = 0;
 
-        while ($j != count($S2) - 1) {
+        while ($jraz != $S2Count - 2 && $ilim != 0) {
             $i = $iraz;
             $j = $jraz;
 
             \array_push($switchTable, array($iraz, $jraz));
 
-            if ($j != count($S2)) {
+            if ($j != $S2Count-1) {
                 $jraz++;
             } else if ($i != 0) {
                 $iraz--;

@@ -11,6 +11,9 @@
             <input type="text" name="rating" placeholder="Rating"><br>
         </form>
         
+        <input type="button" value="AG" onclick="window.location='{{ path('tournaments_ag', {'tournament_id': tournament.id, 'round_number': round.number})}}';"/>
+        <input type="button" value="Rk." onclick="window.location='{{ path('tournaments_rk', {'tournament_id': tournament.id, 'round_number': round.number})}}';"/>
+
         <table>
             {% for player in tournament.players %}
             <tr class="player"> 

@@ -28,12 +28,23 @@ class AppFixtures extends Fixture
         
         $manager->persist($tournament);
         
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $affiliate = new Affiliate();
-            $affiliate->setName($faker->name);
+            $affiliate->setName($faker->lastname + " " + $faker->firstNameFemale);
             $affiliate->setRating($faker->numberBetween(1000, 2900));
+            $affiliate->setTitle($faker->randomElement(array('gf', 'mf', 'ff', 'cf')));
             $player = new Player($tournament, $affiliate);
-                    
+           
+            $manager->persist($player);
+        }
+        
+         for ($i = 0; $i < 10; $i++) {
+            $affiliate = new Affiliate();
+            $affiliate->setName($faker->lastname + " " + $faker->firstNameMale);
+            $affiliate->setRating($faker->numberBetween(1000, 2900));
+            $affiliate->setTitle($faker->randomElement(array('g', 'm', 'f', 'c')));
+            $affiliate->setGender("M");
+            $player = new Player($tournament, $affiliate);
            
             $manager->persist($player);
         }

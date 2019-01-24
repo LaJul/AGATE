@@ -75,6 +75,7 @@ class Tournament {
     
     /**
      * @ORM\OneToMany(targetEntity="Player", mappedBy="tournament", cascade={"persist", "remove"})
+     * @ORM\OrderBy({"ranking" = "ASC"})
      */
     private $players;
     
@@ -215,21 +216,19 @@ class Tournament {
      * @return entities
      */ 
     public function getPlayers()
-    {
-        $iterator = $this->players->getIterator();
-        $iterator->uasort(function ($a, $b) {
-                        
-            if (!($a->getPoints() == $b->getPoints()))
-            {
-                return $a->getPoints() > $b->getPoints() ? -1 : 1;
-            }
-
-            return ($a->getPairingNumber() < $b->getPairingNumber()) ? -1 : 1;
-        });
-        $players = new ArrayCollection(iterator_to_array($iterator));
-            
-        return $players;
+    { 
+        return $this->players;
     }
+    
+      /**
+     * @return integer
+     */ 
+    public function getRounds()
+    {
+        return $this->rounds;
+    }
+    
+    
     /**
      * @return integer
      */ 

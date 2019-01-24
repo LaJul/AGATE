@@ -68,6 +68,11 @@ class Player {
      */
     private $points;
 
+      /**
+     * @ORM\Column(name="ranking",type="integer")
+     */
+    private $ranking;
+    
     /**
      * @ORM\Column(name="is_active",type="boolean")
      */
@@ -240,6 +245,10 @@ class Player {
         return (count($this->whiteGames) + count($this->blackGames)) == $this->getTournament()->getCurrentRound();
     }
 
+    public function getGames() {
+        return new ArrayCollection(array_merge($this->whiteGames->toArray(), $this->blackGames->toArray()));
+    }
+
     public function getNbWins() {
         return count($this->getWhiteWins()) + count($this->getBlackWins());
     }
@@ -247,19 +256,66 @@ class Player {
     public function getNbDraws() {
         return count($this->getWhiteDraws()) + count($this->getBlackDraws());
     }
-    
-     /**
-     * @return float
-     */
-    public function getRoundPoints(Round $round) {
-        return (float) $this->getNbWins() * 1 + $this->getNbDraws() * 0.5;
-    }
-    
+
     /**
      * @return float
      */
     public function getPoints() {
         return (float) $this->getNbWins() * 1 + $this->getNbDraws() * 0.5;
+    }
+
+    public function getResults() {
+        // 1 -> result, opponent ranking, colour
+
+        $results = array();
+
+        foreach ($this->whiteGames as $game) {
+
+            switch ($game->getResult()) {
+                case "1-0" :
+                    $result = "+";
+                    break;
+                case "X-X" :
+                    $result = "=";
+                    break;
+                case "0-1" :
+                    $result = "-";
+                    break;
+                case "1-F" :
+                    $result = ">";
+                    break;
+                case "F-1" :
+                    $result = "<";
+                    break;
+            }
+
+            array_push($results, array("result" => $result, "opponent" => $game->getBlack()->getRanking(), "colour" => "B"));
+        }
+        
+        foreach ($this->blackGames as $game) {
+
+            switch ($game->getResult()) {
+                case "1-0" :
+                    $result = "-";
+                    break;
+                case "X-X" :
+                    $result = "=";
+                    break;
+                case "0-1" :
+                    $result = "+";
+                    break;
+                case "1-F" :
+                    $result = "<";
+                    break;
+                case "F-1" :
+                    $result = ">";
+                    break;
+            }
+
+            array_push($results, array("result" => $result, "opponent" => $game->getWhite()->getRanking(), "colour" => "N"));
+        }
+        
+        return $results;
     }
 
     public function floatedUp() {
@@ -273,6 +329,30 @@ class Player {
                     return $game->getWhiteFloat() == 'DOWN';
                 });
     }
+    
+      /**
+     * @param integer $ranking
+     * @return Player
+     */
+    public function setRanking($ranking) {
+        $this->ranking = $ranking;
+
+        return $this;
+    }
+
+     public function getRanking() {
+        return $this->ranking;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString() {
+        return $this->name . "(" . $this->pairingNumber . ") " . $this->rating . " " . " : " . $this->getPoints();
+    }
+    
+    
+    
 
     private function getWhiteWins() {
         return $this->whiteGames->filter(function($game) {
@@ -298,11 +378,6 @@ class Player {
                 });
     }
 
-    /**
-     * @return string
-     */
-    public function __toString() {
-        return $this->name . "(" . $this->pairingNumber . ") " . $this->rating . " " . " : " . $this->getPoints();
-    }
+   
 
 }

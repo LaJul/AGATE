@@ -1,19 +1,44 @@
 
-<div style="text-align: center">
-    <input type="button" value="NOUVEAU JOUEUR" onclick="window.location='{{ path('players_create', {'tournament': tournament.id, 'affiliate': 1})}}';"/>
-    <input type="text" class='mySearch' id="ls_query" placeholder="Type to start searching ...">
-</div>
-
 <table>
-{% for player in tournament.players %}
-    <tr class="player"> 
-        <td>{{ player.pairingNumber }}</td>
-        <td>{{ player.title }}</td>
-        <td>{{ player.name }}</td>
-        <td>{{ player.rating }}</td>
-        <td>{{ player.points }}</td>
-        <td><input type="button" value="SUPPRIMER" onclick="window.location='{{ path('players_destroy', { 'tournament': tournament.id, 'player': player.id})}}';"/></td>
-    </tr>
-{% endfor %}
+   
+    <caption>{{ tournament.name }}<br />Grille américaine après la ronde {{ round.number }}</caption>
+
+    <tr>
+        <th>Pl</th>
+        <th></th>
+        <th>Nom</th>
+        <th>Elo</th>
+        <th></th>
+        <th>Cat.</th>
+        <th>Fede</th>
+        <th>Ligue</th>
+            {%for r in tournament.rounds %}
+            <th>R {{r.number }}</th>
+        {% endfor %}
+        <th></th>
+    <tr/>
+
+    {% for player in tournament.players %}
+        <tr class="player"> 
+            <td>{{ player.ranking }}</td>
+            <td>{{ player.title }}</td>
+            <td>{{ player.name }}</td>
+            <td>{{ player.rating }}</td>
+            <td>F</td>
+            <td>Sen{{ player.gender }}</td>
+            <td>FRA</td>
+            <td>NAQ</td>
+
+            {% for game in player.results %}
+                <td>{{ game.result }}{{ game.opponent }}{{ game.colour }}</td>
+            {% endfor %}
+            <td>{{ player.points }}</td>
+            <td>DEP 1</td>
+            <td>DEP 2</td>
+            <td>DEP 3</td>
+
+        </tr>
+    {% endfor %}
+
 </table>
 
