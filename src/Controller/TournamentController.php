@@ -17,17 +17,15 @@ use App\Entity\Round;
 class TournamentController extends AbstractController
 {
     /**
-    * @Route("/")
+    * @Route("/", name="home")
     */
     public function index()
     {
         $em = $this->get('doctrine')->getManager();
-        
-        $repository = $em->getRepository(Tournament::class);
-        
-        $tournament = $repository->findOneByName("InterZonal");
+                
+        $tournament = $em->getRepository(Tournament::class)->findOneByName("InterZonal");
 
-        return $this->redirectToRoute('tournaments_show', array('tournament_id' => $tournament->getId()));
+        return $this->redirectToRoute('tournaments_show', array('tournament_slug' => $tournament->getSlug()));
     }
     
     /**
@@ -108,16 +106,14 @@ class TournamentController extends AbstractController
     }
    
     /**
-     * @Route("/tournaments/{tournament_id}", name="tournaments_show")
+     * @Route("/tournaments/{tournament_slug}", name="tournaments_show")
      */
-    public function getTournament(int $tournament_id)
+    public function getTournament(string $tournament_slug)
     {    
-        $tournament = $this->get('doctrine')->getManager()->getRepository(Tournament::class)->find($tournament_id);  
+        $em = $this->get('doctrine')->getManager();
 
-        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => 1));
+        $tournament = $em->getRepository(Tournament::class)->findOneBySlug($tournament_slug);  
+        
+        return $this->redirectToRoute('round_show', array('tournament_slug' => $tournament->getSlug(), 'round_number' => $tournament->getCurrentRound()->getNumber()));
     }
-    
-    
-   
-    
 }

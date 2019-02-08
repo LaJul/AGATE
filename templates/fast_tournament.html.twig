@@ -1,105 +1,176 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+
+<header>
     
-    <div id="fast-tournament">
+    <div class="logo" onclick="window.location = '{{ path('home')}}';">
+         A
+    </div>
     
-        <div id="players-list">
+    <div class="tournament-name">
+        {{ tournament.name }} 
+    </div>
+    
+    <form action="{{ path('player_create', {'tournament_slug': tournament.slug})}}" method="get">
+            <input style="width:100%" type="text" name="name" placeholder="" required="true">
+     </form>
         
-        <form style="display: block" action="{{ path('player_create', {'tournament': tournament.id})}}" method="get">
-            <input type="text" name="name" placeholder="Name" required="true">
-            <input type="text" name="rating" placeholder="Rating"><br>
+    <div class="login">
+        Julien Favarel
+    <div>   
+            
+</header>
+    
+<main>
+    
+    <div class="players">
+
+        <form  action="{{ path('player_create', {'tournament_slug': tournament.slug})}}" method="get">
+            <input style="width:100%" type="text" name="name-with-rating" placeholder="" required="true">
         </form>
-        
-        <input type="button" value="AG" onclick="window.location='{{ path('tournaments_ag', {'tournament_id': tournament.id, 'round_number': round.number})}}';"/>
-        <input type="button" value="Rk." onclick="window.location='{{ path('tournaments_rk', {'tournament_id': tournament.id, 'round_number': round.number})}}';"/>
 
         <table>
-            {% for player in tournament.players %}
+            {% for player in round.unpairedPlayers %}
             <tr class="player"> 
                 <td>{{ player.pairingNumber }}</td>
-                <td>{{ player.name }}</td>
+                <td>{{ player.lastName | upper}} {{ player.firstName }}</td>
                 <td>{{ player.rating }}</td>
                 <td>{{ player.points }}</td>
-                <td><input type="button" value="SUPPRIMER" onclick="window.location='{{ path('player_destroy', { 'tournament': tournament.id, 'player': player.id})}}';"/></td>
+                <td><div class="delete" onclick="window.location = '{{ path('player_destroy', { 'tournament_slug': tournament.slug, 'player': player.id})}}';"/></td>
+            </tr>
+            {% endfor %}
+            {% for player in round.roundOutPlayers %}
+            <tr class="player round-out"> 
+                <td>{{ player.pairingNumber }}</td>
+                <td>{{ player.lastName | upper}} {{ player.firstName }}</td>
+                <td>{{ player.rating }}</td>
+                <td>{{ player.points }}</td>
+                <td><div class="delete" onclick="window.location = '{{ path('player_destroy', { 'tournament_slug': tournament.slug, 'player': player.id})}}';"/></td>
+            </tr>
+            {% endfor %}
+             {% for player in round.tournamentOutPlayers %}
+            <tr class="player tournament-out"> 
+                <td>{{ player.pairingNumber }}</td>
+                <td>{{ player.lastName | upper}} {{ player.firstName }}</td>
+                <td>{{ player.rating }}</td>
+                <td>{{ player.points }}</td>
+                <td><div class="delete" onclick="window.location = '{{ path('player_destroy', { 'tournament_slug': tournament.slug, 'player': player.id})}}';"/></td>
             </tr>
             {% endfor %}
         </table>
+
+    </div>
+
+    <div class="round">
+
+        <div class="round-header">
             
-        </div>
-    
-        <div id="round-info">
-               
-            <div style="text-align: center">
-                {% if (round != null) %}
-                    Ronde {{ round.number }}
+            <div class="round-info">
+                <div>
+                {% if (round.number != 1) %}
+                <div class="arrow arrow-left" onclick="window.location = '{{ path('round_show', {'tournament_slug': tournament.slug, 'round_number': round.previousRound.number})}}';"/></div>
                 {% endif %}
-            </div>
-            
-            <div id="actions-list">
-                
-                <div style="width:33%;text-align: center; display: inline-block;">
-                    {% if (round.number != 1) %}
-                    <input type="button" value="PREC" onclick="window.location='{{ path('round_show', {'tournament_id': tournament.id, 'round_number': round.previousRound.number})}}';"/>
-                    {% endif %}
                 </div>
 
-                <div style="width:33%;text-align: center; display: inline-block" >
-                    
-                    {% if round.isPairable() %}
-                    <input type="button" value="APPARIER" onclick="window.location='{{ path('round_pair', {'tournament_id': tournament.id, 'round_number': round.number})}}';"/>
-                    {% elseif round.isUnpairable()%}
-                    <input type="button" value="DESAPPARIER" onclick="window.location='{{ path('round_unpair', {'tournament_id': tournament.id, 'round_number': round.number})}}';"/>
-                    {% endif %}
+                <div class="round-title">
+                    {{ round.number }}
                 </div>
 
-                <div  style="width:33%;text-align: center; display: inline-block;float:right">
+                <div>
                     {% if (round.getNextRound() is not empty) %}
-                    <input type="button" value="SUIV" onclick="window.location='{{ path('round_show', {'tournament_id': tournament.id, 'round_number': round.nextRound.number})}}';"/>
+                    <div class="arrow arrow-right" onclick="window.location = '{{ path('round_show', {'tournament_slug': tournament.slug, 'round_number': round.nextRound.number})}}';"/></div>
                     {% endif %}
                 </div>
-                
             </div>
-        
-            <div id="games-list">
-            <table>
-                {% if (round.games is not empty) %}
-                        <tr>
-                        <th>Board</th>
-                        <th>Pts</th>
-                        <th>White</th>
-                        <th></th>
-                        <th>Res.</th>
-                        <th>Black</th>
-                        <th></th>
-                        <th>Pts</th></tr>
-                {% for game in round.games %}
                 
-                    <tr class="game"> 
-                        <td>{{ game.number }}</td>
-                        <td>{{ game.whitePoints }}</td>
-                        <td>{{ game.white.name }}</td>
-                        <td>{{ game.white.rating }}</td>
-                        <td>
-                            <select id="result" onChange="window.location='{{ path('set_game_result', { 'tournament_id': tournament.id, 'round_number': round.number, 'game_number': game.number})}}'+'?result='+this.value">
-                                <option value="" {% if (game.result is empty) %} selected {% endif %}></option>
-                                <option value="1-0" {% if (game.result == "1-0") %} selected {% endif %}>1 - 0</option>
-                                <option value="X-X" {% if (game.result == "X-X") %} selected {% endif %}>X - X</option>
-                                <option value="0-1" {% if (game.result == "0-1") %} selected {% endif %}>0 - 1</option>
-                            </select>
-                            {#<input type="button" value="{{ game.result }}" #}
-                        </td>
-                        <td>{{ game.black.name }}</td>
-                        <td>{{ game.black.rating }}</td>
-                        <td>{{ game.blackPoints }}</td>
-                    </tr>
-                {% endfor %}
+            <div class="round-action">
+                {% if round.isPairable() %}
+                <div class="pair" onclick="window.location = '{{ path('round_pair', {'tournament_slug': tournament.slug, 'round_number': round.number})}}';"/>
+                PAIR
+                </div>
+                {% elseif round.isUnpairable()%}    
+                <div class="unpair" onclick="window.location = '{{ path('round_unpair', {'tournament_slug': tournament.slug, 'round_number': round.number})}}';"/>
+                UNPAIR
+                </div>
+                 <div class="quick" onclick="window.location = '{{ path('set_round_result', {'tournament_slug': tournament.slug, 'round_number': round.number})}}';"/>
+                QUICK
+                </div>
                 {% endif %}
-            </table>
             </div>
-
         </div>
-  
-</div>
+
+        <div class="games">
+            <table>
+                <thead class="games-header">
+                    {% if (round.games is not empty) %}
+
+                    <tr>
+                        <th>
+                        <svg class="board" width="18" height="18">
+                        <rect x="0" y="0" width="9" height="9"
+                              style="fill:white" />
+                        <rect x="9" y="0" width="9" height="9"   
+                              style="fill:black" />
+                        <rect x="0" y="9" width="9" height="9"   
+                              style="fill:black" />
+                        <rect x="9" y="9" width="9" height="9"
+                              style="fill:white" />
+                        </svg>
+                        </th>
+                        <th>Pts</th>
+                        <th class="align-left"><div class="white"></div></th>
+                        <th></th>
+                        <th class="align-center">? - ?</th>
+                        <th class="align-left"><div class="black"></div></th>
+                        <th></th>
+                        <th>Pts</th>
+                    </tr>
+                </thead>
+                {% for game in round.games %}
+                <tr class="game"> 
+                    <td>{{ game.number }}</td>
+                    <td class="align-center">{{ game.whitePoints }}</td>
+                    <td class="align-left"><span class="player-name">{{ game.white.lastName}}</span> {{ game.white.firstName }}</td>
+                    <td>{{ game.white.rating }} {{ game.white.ratingType }}</td>
+                    <td class="align-center">
+                        <select id="result" onChange="window.location = '{{ path('set_game_result', { 'tournament_slug': tournament.slug, 'round_number': round.number, 'game_number': game.number})}}' + '?result=' + this.value">
+                            <option value="" {% if (game.result is empty) %} selected {% endif %}></option>
+                            <option value="1-0" {% if (game.result == "1-0") %} selected {% endif %}>1-0</option>
+                            <option value="X-X" {% if (game.result == "X-X") %} selected {% endif %}>X-X</option>
+                            <option value="0-1" {% if (game.result == "0-1") %} selected {% endif %}>0-1</option>
+                            <option value="1-F" {% if (game.result == "1-F") %} selected {% endif %}>1-F</option>
+                            <option value="F-1" {% if (game.result == "F-1") %} selected {% endif %}>F-1</option>
+
+                        </select>
+                        {#<input type="button" value="{{ game.result }}" #}
+                    </td>
+                    {% if game.white!= round.exempt %}
+                    <td class="align-left"><span class="player-name">{{ game.black.lastName}}</span> {{ game.black.firstName }}</td>
+                    <td>{{ game.black.rating }} {{ game.black.ratingType }}</td>
+                    <td class="align-center">{{ game.blackPoints }}</td>
+                    {% else %}
+                    <td class="align-left">EXEMPT</td>
+                    <td></td>
+                    <td></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="alphabetical-list-icon" onclick="window.location = '{{ path('tournaments_az', {'tournament_slug': tournament.slug})}}';"/></div>
+        <div class="statistics-icon" onclick="window.location = '{{ path('tournaments_ag', {'tournament_slug': tournament.slug, 'round_number': round.number})}}';"/></div>
+        <hr>    
+        <div class="ranking-table-icon" onclick="window.location = '{{ path('tournaments_rk', {'tournament_slug': tournament.slug, 'round_number': round.number})}}';"/></div>
+        <div class="ranking-crosstable-icon" onclick="window.location = '{{ path('tournaments_ag', {'tournament_slug': tournament.slug, 'round_number': round.number})}}';"/></div>
+        <div class="fide-perfs-icon" onclick="window.location = '{{ path('tournaments_fide', {'tournament_slug': tournament.slug, 'round_number': round.number})}}';"/></div>
+        <hr>    
+    </div>       
+
+</main>
 
 {% endblock %}

@@ -9,31 +9,33 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Tournament;
 use App\Entity\Game;
 
+use App\Service\SwissPairingCalculator;
+
 class GameController extends AbstractController
 {
    /**
-     * @Route("/tournaments/{tournament_id}/rounds/{round_number}/games/{game_number}", name="set_game_result")
+     * @Route("/tournaments/{tournament_slug}/rounds/{round_number}/games/{game_number}", name="set_game_result")
      */
-    public function setGameResult(Request $request, int $tournament_id, int $round_number, int $game_number)
+    public function setGameResult(Request $request, string $tournament_slug, int $round_number, int $game_number, SwissPairingCalculator $spc)
     {
         $em = $this->get('doctrine')->getManager(); 
 
-        $tournament = $em->getRepository(Tournament::class)->find($tournament_id);
+        $tournament = $em->getRepository(Tournament::class)->findOneBySlug($tournament_slug);
         $round = $tournament->getRound($round_number);
         $game = $round->getGame($game_number);
         
-        $game->setResult($request->query->get('result'));
+        $spc->setGameResult($game, $request->query->get('result'));
         
         $em->persist($game);
         $em->flush();
         
-        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round->getNumber()));
+        return $this->redirectToRoute('round_show', array('tournament_slug' => $tournament->getSlug(), 'round_number' => $round->getNumber()));
     }
     
      /**
-     * @Route("/tournaments/{tournament}/games/{game}", name="game_destroy")
+     * @Route("/tournaments/{tournament_slug}/games/{game}", name="game_destroy")
      */
-    public function unpairGame(Request $request, Tournament $tournament, Game $game)
+    public function unpairGame(string $tournament_slug, Game $game)
     {
         $em = $this->get('doctrine')->getManager(); 
 
@@ -42,7 +44,7 @@ class GameController extends AbstractController
         $em->persist($game);
         $em->flush();
         
-        return $this->redirectToRoute('tournaments_show', array('tournament' => $tournament->getId()));
+        return $this->redirectToRoute('tournaments_show', array('tournament_slug' => $tournament_slug));
     }
    
 }

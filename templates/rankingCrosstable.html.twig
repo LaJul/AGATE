@@ -1,44 +1,49 @@
+{% extends 'base.html.twig' %}
 
+{% block body %}
 <table>
-   
-    <caption>{{ tournament.name }}<br />Grille américaine après la ronde {{ round.number }}</caption>
 
-    <tr>
-        <th>Pl</th>
-        <th></th>
-        <th>Nom</th>
-        <th>Elo</th>
-        <th></th>
-        <th>Cat.</th>
-        <th>Fede</th>
-        <th>Ligue</th>
+    <caption>{{ tournament.name }}<br />Grille américaine après la ronde {{ roundNumber }}</caption>
+
+    <tr class="header">
+        <th class="ranking">Pl</th>
+        <th class="title"></th>
+        <th class="name">Nom</th>
+        <th class="rating">Elo</th>
+        <th class="cat">Cat.</th>
+        <th class="fed">Fede</th>
+        <th class="league">Ligue</th>
             {%for r in tournament.rounds %}
-            <th>R {{r.number }}</th>
-        {% endfor %}
-        <th></th>
+            <th class="game">R {{r.number }}</th>
+            {% endfor %}
+        <th class="points">Pts</th>
+            {% for tiebreak in tournament.tiebreaks %}
+            <th class="tb">{{ tiebreak.shortName }}</th>
+            {% endfor %}
     <tr/>
 
-    {% for player in tournament.players %}
-        <tr class="player"> 
-            <td>{{ player.ranking }}</td>
-            <td>{{ player.title }}</td>
-            <td>{{ player.name }}</td>
-            <td>{{ player.rating }}</td>
-            <td>F</td>
-            <td>Sen{{ player.gender }}</td>
-            <td>FRA</td>
-            <td>NAQ</td>
-
+    {% for rank, player in rankingCrosstable %}
+            <tr class="player"> 
+            <td class="ranking">{{ rank + 1 }}</td>
+            <td class="title">{{ player.title }}</td>
+            <td class="name">{{ player.lastName | upper}} {{ player.firstName }}</td>
+            <td class="rating">{{ player.rating }} F</td>
+            <td class="cat">Sen{{ player.gender }}</td>
+            <td class="fed"><img border="0" src="http://localhost:8000/flags/{{ "FRA" }}.GIF" height="15px"></td>
+            <td class="league">{{ player.league }}</td>
             {% for game in player.results %}
-                <td>{{ game.result }}{{ game.opponent }}{{ game.colour }}</td>
+                <td class="game">{{ game.result }}{{ game.opponent }}{{ game.colour }}</td>
+                 <td class="game">{{ player[tiebreak.shortName]}}</td>
+
             {% endfor %}
-            <td>{{ player.points }}</td>
-            <td>DEP 1</td>
-            <td>DEP 2</td>
-            <td>DEP 3</td>
+            <td class="points">{{ player.points }}</td>
+            <td class="tb">{{ player.rating }}</td>
+              {% for tiebreak in tournament.tiebreaks %}
+                        <td class="tb">{{ player[tiebreak.shortName]}}</td>
+                    {% endfor %}
 
         </tr>
     {% endfor %}
 
 </table>
-
+{% endblock %}

@@ -30,18 +30,29 @@ class Player {
 
     /**
      * @ORM\ManyToOne(targetEntity="Tournament", inversedBy="players")
+     * @ORM\JoinColumn(name="tournament_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $tournament;
 
     /**
-     * @ORM\Column(name="name",type="string",length=255)
+     * @ORM\Column(name="lastName",type="string",length=255)
      */
-    private $name;
+    private $lastName;
+
+    /**
+     * @ORM\Column(name="firstName",type="string",length=255)
+     */
+    private $firstName;
 
     /**
      * @ORM\Column(name="title",type="string",length=3, nullable=true)
      */
     private $title;
+
+    /**
+     * @ORM\Column(name="category", type="string", length=3, nullable=true)
+     */
+    private $category;
 
     /**
      * @ORM\Column(name="gender",type="string", length=1, nullable=true)
@@ -59,6 +70,21 @@ class Player {
     private $ratingType;
 
     /**
+     * @ORM\Column(name="club",type="string", nullable=true)
+     */
+    private $club;
+
+    /**
+     * @ORM\Column(name="league",type="string", length=3, nullable=true)
+     */
+    private $league;
+
+    /**
+     * @ORM\Column(name="federation",type="string", length=3, nullable=true)
+     */
+    private $federation;
+
+    /**
      * @ORM\Column(name="pairing_number",type="integer", nullable=true)
      */
     private $pairingNumber;
@@ -68,11 +94,6 @@ class Player {
      */
     private $points;
 
-      /**
-     * @ORM\Column(name="ranking",type="integer")
-     */
-    private $ranking;
-    
     /**
      * @ORM\Column(name="is_active",type="boolean")
      */
@@ -93,31 +114,24 @@ class Player {
      * @param string $name
      * @return Player
      */
-    public function __construct($tournament, $affiliate = null) {
+    public function __construct($affiliate = null) {
         if ($affiliate != null) {
-            $this->gender = $affiliate->getGender();
-            $this->title = $affiliate->getTitle();
-            $this->name = $affiliate->getName();
 
-            switch ($tournament->getTimeControlType()) {
-                case 0:
-                    $this->rating = $affiliate->getRating();
-                    $this->ratingType = $affiliate->getRatingType();
-                    break;
-                case 1:
-                    $this->rating = $affiliate->getRapid();
-                    $this->ratingType = $affiliate->getRapidType();
-                    break;
-                case 2:
-                    $this->rating = $affiliate->getBlitz();
-                    $this->ratingType = $affiliate->getBlitzType();
-                    break;
-            }
+            $this->title = $affiliate->getTitle();
+            $this->lastName = $affiliate->getLastName();
+            $this->firstName = $affiliate->getFirstName();
+
+            $this->gender = $affiliate->getGender();
+            $this->category = $this->setCategory($affiliate->getBirthDate());
+
+            $this->club = $affiliate->getClub()->getName();
+            $this->league = $affiliate->getClub()->getLeague();
+            $this->federation = $affiliate->getClub()->getFederation();
         }
 
         $this->points = 0;
         $this->isActive = true;
-        $this->tournament = $tournament;
+
         $this->whiteGames = new ArrayCollection();
         $this->blackGames = new ArrayCollection();
     }
@@ -128,7 +142,22 @@ class Player {
     public function getId() {
         return $this->id;
     }
+    
+    public function getTournament() {
+        return $this->tournament;
+    }
+    
+     /**
+     * @param Tournament $tournament
+     * @return Player
+     */
+    public function setTournament($tournament) {
+        $this->tournament = $tournament;
 
+        return $this;
+    }
+
+    
     /**
      * @param string $gender
      * @return Player
@@ -147,11 +176,18 @@ class Player {
     }
 
     /**
-     * @param string $name
+     * @return string
+     */
+    public function getCategory() {
+        return $this->category;
+    }
+
+    /**
+     * @param string $lastName
      * @return Player
      */
-    public function setName($name) {
-        $this->name = $name;
+    public function setLastName($lastName) {
+        $this->lastName = $lastName;
 
         return $this;
     }
@@ -159,8 +195,32 @@ class Player {
     /**
      * @return string
      */
-    public function getName() {
-        return $this->name;
+    public function getLastName() {
+        return $this->lastName;
+    }
+
+    /**
+     * @param string $firstName
+     * @return Player
+     */
+    public function setFirstName($firstName) {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFirstName() {
+        return $this->firstName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullName() {
+        return $this->lastName . " " . $this->firstName;
     }
 
     /**
@@ -215,6 +275,44 @@ class Player {
     }
 
     /**
+     * @param integer $ratingType
+     * @return Player
+     */
+    public function setRatingType($ratingType) {
+        $this->ratingType = $ratingType;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRatingType() {
+        return $this->ratingType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClub() {
+        return $this->club;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLeague() {
+        return $this->league;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFederation() {
+        return $this->federation;
+    }
+
+    /**
      * @param string $colourPreference
      * @return Player
      */
@@ -244,9 +342,29 @@ class Player {
     public function isPaired() {
         return (count($this->whiteGames) + count($this->blackGames)) == $this->getTournament()->getCurrentRound();
     }
+    
+    public function isTopscorer() {
+        
+        $nbGames = $this->getNbGames();
+       
+        return $nbGames != 0 ? $this->points / $nbGames > 0.5 : false;
+    }
+    
+    public function getWhiteGames() {
+        return $this->whiteGames;
+    }
+
+    public function getBlackGames() {
+        return $this->blackGames;
+    }
 
     public function getGames() {
         return new ArrayCollection(array_merge($this->whiteGames->toArray(), $this->blackGames->toArray()));
+    }
+    
+    public function getNbGames()
+    {
+        return count($this->whiteGames) + count($this->blackGames);
     }
 
     public function getNbWins() {
@@ -291,7 +409,7 @@ class Player {
 
             array_push($results, array("result" => $result, "opponent" => $game->getBlack()->getRanking(), "colour" => "B"));
         }
-        
+
         foreach ($this->blackGames as $game) {
 
             switch ($game->getResult()) {
@@ -314,7 +432,7 @@ class Player {
 
             array_push($results, array("result" => $result, "opponent" => $game->getWhite()->getRanking(), "colour" => "N"));
         }
-        
+
         return $results;
     }
 
@@ -329,40 +447,78 @@ class Player {
                     return $game->getWhiteFloat() == 'DOWN';
                 });
     }
-    
-      /**
-     * @param integer $ranking
-     * @return Player
-     */
-    public function setRanking($ranking) {
-        $this->ranking = $ranking;
-
-        return $this;
-    }
-
-     public function getRanking() {
-        return $this->ranking;
-    }
 
     /**
      * @return string
      */
     public function __toString() {
-        return $this->name . "(" . $this->pairingNumber . ") " . $this->rating . " " . " : " . $this->getPoints();
+        return "(" . $this->pairingNumber . ") " . $this->lastName . " " . $this->firstName . " " . $this->rating . " : " . $this->getPoints();
     }
-    
-    
-    
+
+    private function setCategory(\DateTime $birthDate) {
+
+        $today = new \DateTime();
+
+
+        if ($today->format('n') >= 9 && $today->format('n') <= 12) {
+            $date = new \DateTime("01-01-" . $today->format('y'));
+        } else {
+            $year = $today->format('y') - 1;
+
+            $date = new \DateTime("01-01-" . $year);
+        }
+
+        $age = $birthDate->diff($date)->y;
+
+        if ($age < 8) {
+            return "Ppo";
+        }
+        if ($age == 8 || $age == 9) {
+            return "Pou";
+        }
+        if ($age == 10 || $age == 11) {
+            return "Pup";
+        }
+        if ($age == 12 || $age == 13) {
+            return "Ben";
+        }
+        if ($age == 14 || $age == 15) {
+            return "Min";
+        }
+        if ($age == 16 || $age == 17) {
+            return "Cad";
+        }
+        if ($age == 18 || $age == 19) {
+            return "Jun";
+        }
+        if ($age >= 20 && $age <= 49) {
+            return "Sen";
+        }
+        if ($age >= 50 && $age <= 64) {
+            return "Sep";
+        }
+        if ($age > 65) {
+            return "Vet";
+        }
+    }
+
+    private function getWins() {
+        return new ArrayCollection(array_merge($this->getWhiteWins()->toArray(), $this->getBlackWins()->toArray()));
+    }
+
+    private function getDraws() {
+        return new ArrayCollection(array_merge($this->getWhiteDraws()->toArray(), $this->getBlackDraws()->toArray()));
+    }
 
     private function getWhiteWins() {
         return $this->whiteGames->filter(function($game) {
-                    return $game->getResult() == '1-0';
+                    return $game->getResult() == '1-0' || $game->getResult() == '1-F';
                 });
     }
-
+    
     private function getBlackWins() {
         return $this->blackGames->filter(function($game) {
-                    return $game->getResult() == '0-1';
+                    return $game->getResult() == '0-1' || $game->getResult() == 'F-1';
                 });
     }
 
@@ -377,7 +533,5 @@ class Player {
                     return $game->getResult() == 'X-X';
                 });
     }
-
-   
 
 }

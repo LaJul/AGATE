@@ -1,16 +1,38 @@
+{% extends 'base.html.twig' %}
 
-<table>
-{% for player in tournament.players %}
-    <tr class="player"> 
-        <td>{{ player.pairingNumber }}</td>
-        <td>{{ player.title }}</td>
-        <td>{{ player.name }}</td>
-        <td>{{ player.rating }}</td>
-        <td>{{ player.points }}</td>
-        <td>{{ player.opponentAverage }}</td>
-        <td>{{ player.fide }}</td>
+{% block body %}
 
-    </tr>
-{% endfor %}
-</table>
+    <div class="fide-perfs-table">
+        <table>
 
+            <caption>{{ tournament.name }}<br />Performances Fide après la ronde {{ roundNumber }}</caption>
+
+            <tr class="header">
+                <th class="ranking">Nr.</th>
+                <th class="title"></th>
+                <th class="name">Nom</th>
+                <th class="rating">Elo</th>
+                <th class="fed">Fede</th>
+                <th class="points">Pts</th>
+                <th class="gamesNumber">Nbr</th>
+                <th class="average">Moyenne</th>
+                <th class="delta">Gain/Perf</th>
+            <tr/>
+
+            {% for rank, player in fidePerfsTable %}
+                <tr class="player"> 
+                    <td class="ranking">{{ rank + 1 }}</td>
+                    <td class="title">{{ player.title }}</td>
+                    <td class="name">{{ player.lastName | upper}} {{ player.firstName }}</td>
+                    <td class="rating">{{ player.rating }} F</td>
+                    <td class="fed"><img border="0" src="http://localhost:8000/flags/{{ "FRA" }}.GIF" height="15px"></td>
+                    <td class="points">{{ player.points }}</td>
+                    <td class="gamesNumber">{{ player.gamesNumber }}</td>
+                    <td class="average">{{ player.average }}</td>
+                    <td class="delta">{{ player.delta }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+            
+{% endblock %}

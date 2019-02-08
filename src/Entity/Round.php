@@ -9,6 +9,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Description of Round
@@ -30,6 +31,7 @@ class Round {
     
      /**
     * @ORM\ManyToOne(targetEntity="Tournament", inversedBy="rounds")
+    * @ORM\JoinColumn(name="tournament_id", referencedColumnName="id", onDelete="CASCADE")
     */
     private $tournament;
     
@@ -44,14 +46,39 @@ class Round {
     private $startDate;
     
     /**
+    * @ORM\ManyToMany(targetEntity="Player", cascade={"persist"})
+    */
+    private $unPairedPlayers;
+    
+    /**
+    * @ORM\ManyToMany(targetEntity="Player")
+    * @ORM\JoinTable(name="round_tournamentOutPlayers")
+    */
+    private $tournamentOutPlayers;
+    
+    /**
+    * @ORM\ManyToMany(targetEntity="Player")
+    * @ORM\JoinTable(name="round_roundOutPlayers")
+    */
+    private $roundOutPlayers;
+  
+    /**
     * @ORM\OneToMany(targetEntity="Game", mappedBy="round")
     */
     private $games;
+    
+    /**
+    * @ORM\OneToOne(targetEntity="Player")
+    */
+    private $exempt;
     
     public function __construct($tournament, $number)
     {
         $this->tournament = $tournament;
         $this->number = $number;
+        $this->tournamentOutPlayers = new ArrayCollection();
+        $this->roundOutPlayers = new ArrayCollection();
+        $this->unPairedPlayers = new ArrayCollection();
     }
     
     /**
@@ -68,6 +95,42 @@ class Round {
     public function getNumber()
     {
         return $this->number;
+    }
+    
+     /**
+     * @return entities
+     */
+    public function getRoundOutPlayers() {
+        return $this->roundOutPlayers;
+    }
+    
+    /**
+     * @return this
+     */
+    public function add(Player $player){
+        return $this->unPairedPlayers->add($player);
+    }
+    
+     /**
+     * @return this
+     */
+    public function remove(Player $player){
+        $this->unPairedPlayers->removeElement($player);
+        return $this->roundOutPlayers->add($player);
+    }
+
+    /**
+     * @return entities
+     */
+    public function getTournamentOutPlayers() {
+        return $this->tournamentOutPlayers;
+    }
+    
+    /**
+     * @return entities
+     */
+    public function getUnpairedPlayers() {
+        return $this->unPairedPlayers;
     }
     
      /**
@@ -145,6 +208,24 @@ class Round {
         }
         
         return !$this->games->isEmpty();
-        
     } 
+    
+    /**
+     * @param string $player
+     * @return Game
+     */ 
+    public function setExempt(Player $player = NULL)
+    {
+        $this->exempt = $player;
+        
+        return $this;
+    }
+    
+     /**
+     * @return Player
+     */ 
+    public function getExempt()
+    {
+        return $this->exempt;
+    }
 }

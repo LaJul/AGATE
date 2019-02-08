@@ -31,7 +31,7 @@ class GameRepository extends EntityRepository {
         return $qb->getQuery()->getResult();
     }
     
-    public function getGames($player)
+    public function getGames($player, $roundNumber = null)
     {
         $qb = $this->createQueryBuilder('g');
         
@@ -42,6 +42,11 @@ class GameRepository extends EntityRepository {
             ->orderBy('r.number', 'ASC')
             ->setParameter('player', $player);
 
+        if ($roundNumber != null) {
+            $qb->andWhere($qb->expr()->lt('r.number', ':roundNumber'))
+            ->setParameter('roundNumber', $roundNumber);
+        }
+        
         return $qb->getQuery()->getResult();
     }
     
@@ -68,7 +73,7 @@ class GameRepository extends EntityRepository {
         }
     }
 
-    public function getWonGames($player)
+    public function getWonGames($player, $roundNumber = null)
     {
         $qb = $this->createQueryBuilder('g');
         
@@ -78,23 +83,55 @@ class GameRepository extends EntityRepository {
         ))
             ->setParameter('player', $player);
 
+        if ($roundNumber != null) {
+            $qb->andWhere($qb->expr()->lt('r.number', ':roundNumber'))
+            ->setParameter('roundNumber', $roundNumber);
+        }
+          
         return $qb->getQuery()->getResult();
     }
     
-    public function getDrawnGames($player)
+    public function getWonGamesByForfeit($player, $roundNumber = null)
     {
         $qb = $this->createQueryBuilder('g');
         
           $qb->where($qb->expr()->orX(
-            $qb->expr()->andX($qb->expr()->eq('g.white', ':player'),$qb->expr()->eq('g.result', 'X-X')),
-            $qb->expr()->andX($qb->expr()->eq('g.black', ':player'),$qb->expr()->eq('g.result', 'X-X'))
+            $qb->expr()->andX($qb->expr()->eq('g.white', ':player'),$qb->expr()->eq('g.result', ':result1')),
+            $qb->expr()->andX($qb->expr()->eq('g.black', ':player'),$qb->expr()->eq('g.result', ':result2'))
         ))
+            ->setParameter('result1', '1-F')
+            ->setParameter('result2', 'F-1')
+
             ->setParameter('player', $player);
 
+        if ($roundNumber != null) {
+            $qb->andWhere($qb->expr()->lt('r.number', ':roundNumber'))
+            ->setParameter('roundNumber', $roundNumber);
+        }
+          
         return $qb->getQuery()->getResult();
     }
     
-    public function getLostGames($player)
+    public function getDrawnGames($player, $roundNumber = null)
+    {
+        $qb = $this->createQueryBuilder('g');
+        
+        $qb->where($qb->expr()->orX(
+            $qb->expr()->andX($qb->expr()->eq('g.white', ':player'),$qb->expr()->eq('g.result', ':result')),
+            $qb->expr()->andX($qb->expr()->eq('g.black', ':player'),$qb->expr()->eq('g.result', ':result'))
+        ))
+            ->setParameter('result', 'X-X')
+            ->setParameter('player', $player);
+          
+        if ($roundNumber != null) {
+            $qb->andWhere($qb->expr()->lt('r.number', ':roundNumber'))
+            ->setParameter('roundNumber', $roundNumber);
+        }
+        
+        return $qb->getQuery()->getResult();
+    }
+    
+    public function getLostGames($player, $roundNumber = null)
     {
         $qb = $this->createQueryBuilder('g');
         
@@ -104,6 +141,11 @@ class GameRepository extends EntityRepository {
         ))
             ->setParameter('player', $player);
 
+        if ($roundNumber != null) {
+            $qb->andWhere($qb->expr()->lt('r.number', ':roundNumber'))
+            ->setParameter('roundNumber', $roundNumber);
+        }
+          
         return $qb->getQuery()->getResult();
     }
     

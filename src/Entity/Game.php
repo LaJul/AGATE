@@ -104,7 +104,7 @@ class Game {
         $this->white = $white;
         $this->whitePoints = $white->getPoints();
         $this->black = $black;
-        $this->blackPoints = $black->getPoints();
+        $this->blackPoints = $black != null ? $black->getPoints() : 0;
         $this->result = "";
     }
     
@@ -115,6 +115,14 @@ class Game {
     {
         return $this->id;
     }
+      /**
+     * @return Round
+     */ 
+    public function getRound()
+    {
+        return $this->round;
+    }
+    
     
      /**
      * @return string
@@ -188,5 +196,12 @@ class Game {
     public function getResult()
     {
         return $this->result;
+    }
+    
+    /**
+     * @return string
+     */
+    public function __toString() {
+        return "Table". " ". $this->number ." : ". $this->white->getLastName() ." ". $this->white->getFirstName() . " with white plays against " . $this->black->getLastName() . " ". $this->black->getFirstName();
     }
 }

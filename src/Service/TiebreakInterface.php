@@ -17,4 +17,5 @@ use App\Entity\Player;
 interface TiebreakInterface
 {    
     public function setCriteria(Player $player);
+    public function compare(Player $player1, Player $player2);
 }

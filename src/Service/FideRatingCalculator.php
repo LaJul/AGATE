@@ -4,6 +4,8 @@ namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+
+use App\Entity\Tournament;
 use App\Entity\Player;
 
 class FideRatingCalculator {
@@ -73,8 +75,40 @@ class FideRatingCalculator {
         $this->em = $em;
         $this->logger = $logger;
     }
-
-    public function getPerformance(Player $player) {
+     
+    public function getFidePerfsTable(Tournament $tournament, int $roundNumber)
+    {
+        $players = $tournament->getPlayers()->toArray();
+        
+        $table = array();
+        
+        foreach ($players as $key => $player)
+        {
+            $line = array();
+                        
+            $line['title'] = $player->getTitle();
+            $line['lastName'] = $player->getLastName();
+            $line['firstName'] = $player->getFirstName();
+            $line['rating'] =$player->getRating();
+            $line['category'] =$player->getCategory();
+            $line['gender'] = $player->getGender();
+            $line['federation'] =$player->getFederation();
+            $line['points'] = $player->getPoints();
+            $line['gamesNumber'] = count($player->getGames());
+            $line['average'] = $this->getAverage($player);
+            $line['delta'] = $this->getFide($player);
+            
+            array_push($table, $line);
+        }
+        
+        usort($table, array($this, "cmpPlayersAlpha"));
+        
+        return $table;
+    }
+    
+     private function getAverage(Player $player) {
+         $ratingSum = 0;
+         
        foreach ($player->getWhiteGames() as $whiteGame) {
             // Ajouter regle 400 points
             $ratingSum += $whiteGame->getBlack()->getRating();
@@ -86,10 +120,29 @@ class FideRatingCalculator {
 
         $nbGames = count($player->getGames());
 
-        return $ratingSum / $nbGames + $this->D[$this->getPoints() / $nbGames];
+        return $ratingSum / $nbGames;
     }
     
-    public function getDelta(Player $player) {
+    private function getPerformance(Player $player) {
+                 $ratingSum = 0;
+
+       foreach ($player->getWhiteGames() as $whiteGame) {
+            // Ajouter regle 400 points
+            $ratingSum += $whiteGame->getBlack()->getRating();
+        }
+
+        foreach ($player->getBlackGames() as $blackGame) {
+            $ratingSum += $blackGame->getWhite()->getRating();
+        }
+
+        $nbGames = count($player->getGames());
+
+        return $ratingSum / $nbGames + FideRatingCalculator::$D[$this->getPoints() / $nbGames];
+    }
+    
+    
+    
+    private function getDelta(Player $player) {
         
         $K = 10;
         $delta = 0;
@@ -109,7 +162,7 @@ class FideRatingCalculator {
                     break;
             }
             
-            $delta +=  $K * ($W - array_search($player->getRating() - $whiteGame->getBlack()->getRating(), $this->D));
+            $delta +=  $K * ($W - array_search($player->getRating() - $whiteGame->getBlack()->getRating(), FideRatingCalculator::$D));
         }
 
         foreach ($player->getBlackGames() as $blackGame) {
@@ -127,7 +180,7 @@ class FideRatingCalculator {
                     break;
             }
             
-            $delta +=  $K * ($W - array_search($player->getRating() - $blackGame->getWhite()->getRating(), $this->D));
+            $delta +=  $K * ($W - array_search($player->getRating() - $blackGame->getWhite()->getRating(), FideRatingCalculator::$D));
         }
         
         return $delta;
@@ -135,7 +188,7 @@ class FideRatingCalculator {
     
     public function getFide(Player $player)
     {
-        if ($player->getRatingType == "F")
+        if ($player->getRatingType() == "F")
         {
             return $this->getDelta($player);
         }
@@ -145,5 +198,13 @@ class FideRatingCalculator {
         }
     }
     
+      private static function cmpPlayersAlpha($a, $b) {
+
+        if ($a['lastName'] == $b['lastName']) {
+          
+            return $a['firstName'] > $b['firstName'] ? 1 : -1;
+        }
+        return $a['lastName'] > $b['lastName'] ? 1 : -1;
+    }
     
 }

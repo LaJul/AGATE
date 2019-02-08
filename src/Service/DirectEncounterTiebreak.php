@@ -10,6 +10,7 @@ namespace App\Service;
 
 use App\Service\TiebreakInterface;
 use App\Entity\Tournament;
+use App\Entity\Player;
 
 /**
  * Description of BlackGamesTiebreak

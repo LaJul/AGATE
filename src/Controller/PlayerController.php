@@ -39,60 +39,50 @@ class PlayerController extends AbstractController
     }
     
     /**
-    * @Route("/tournaments/{tournament}/players/new", name="player_create")
+    * @Route("/tournaments/{tournament_slug}/players/new", name="player_create")
     */
-    public function createPlayer(Request $request, Tournament $tournament)
+    public function createPlayer(Request $request, string $tournament_slug)
     {
+        $em = $this->get('doctrine')->getManager();
+
         $nameAndRating = explode(" ", $request->query->get('name-with-rating'));
-        
-        $player = new Player($tournament);
-        $player->setName($nameAndRating[0]);
+        $tournament = $em->getRepository(Tournament::class)->findOneBySlug($tournament_slug);  
+
+        $player = $tournament->addPlayer();
+        $player->setLastName("")->setFirstName($nameAndRating[0]);
         $player->setRating(isset($nameAndRating[1]) ? $nameAndRating[1] : 1000);
         
-        $em = $this->get('doctrine')->getManager();
         $em->persist($player);
         $em->flush();
         
-        return $this->redirectToRoute('tournaments_fast_show', array('tournament' => $tournament->getId()));
+        return $this->redirectToRoute('tournaments_show', array('tournament_slug' => $tournament->getSlug()));
     }
  
     /**
-    * @Route("/tournaments/{tournament}/players/destroy/{player}", name="player_destroy", methods={"GET"})
+    * @Route("/tournaments/{tournament_slug}/players/destroy/{player}", name="player_destroy", methods={"GET"})
     */
-    public function destroyPlayer(Tournament $tournament, Player $player)
+    public function destroyPlayer(string $tournament_slug, Player $player)
     {
         $em = $this->get('doctrine')->getManager();
         $em->remove($player);
         $em->flush();
         
-        return $this->redirectToRoute('tournaments_fast_show', array('tournament' => $tournament->getId()));
+        return $this->redirectToRoute('tournaments_show', array('tournament_slug' => $tournament_slug));
     }
+    
     
     /**
-    * @Route("/tournaments/{tournament}/players/{player}?action=pairWhite", name="player_pair_white", methods={"GET"})
+    * @Route("/tournaments/{tournament}/round/{round_number}/players/{player}?action=roundOut", name="player_round_out", methods={"GET"})
     */
-    public function pairWhitePlayer(Tournament $tournament, Player $player)
+    public function roundOutlayer(Tournament $tournament, int $round_number, Player $player)
     {        
-        $game = new Game($tournament, $tournament->getCurrentRound(), $player, null);
+        $round = $tournament->getRound($round_number);  
+        
+        $round->remove($player);
        
         $em = $this->get('doctrine')->getManager();
-        $em->persist($game);
         $em->flush();
         
-        return $this->redirectToRoute('tournaments_fast_show', array('tournament' => $tournament->getId()));
-    }
-    
-     /**
-    * @Route("/tournaments/{tournament}/players/{player}?action=pairBlack", name="player_pair_black", methods={"GET"})
-    */
-    public function pairBlackPlayer(Tournament $tournament, Player $player)
-    {        
-        $game = new Game($tournament, $tournament->getCurrentRound(), null, $player);
-       
-        $em = $this->get('doctrine')->getManager();
-        $em->persist($game);
-        $em->flush();
-        
-        return $this->redirectToRoute('tournaments_fast_show', array('tournament' => $tournament->getId()));
+        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round_number));
     }
 }

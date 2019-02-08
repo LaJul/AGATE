@@ -8,99 +8,416 @@ and open the template in the editor.
     Author     : Julien Favarel
 */
 
-body
-{
-    text-align: center;
-	font-family:arial;
-	 display: flex;
-    justify-content: center;
+*{
+    box-sizing: border-box;
 }
 
-/* Fast Tournament Page */
-
-div#fast-tournament
+body
 {
-	width:1000px;
+    font-family:Roboto;
+    width:1000px;
+    margin: auto;
+}
+
+/* Header */
+
+header{
+    height:63px;
+    width:inherit;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding:10px;
+    background-color: black;
+    color:white;
+    font-weight: bold;
+    /*position: fixed;*/
+}
+
+.logo {
+    border-radius: 50%;
+    background-color: #072EFF;
+    color:white;
+    width: 64px;
+    height: 50px; 
+    line-height: 50px;
+    white-space: nowrap;
+    text-align:center;
+    font-size:36px;
+
+}
+
+header .tournament-name{
+    font-size: 25px;
+    font-style: italic;
+}
+
+/* Main */
+
+main{
+    margin:auto;
     display: flex;
     justify-content: center;
 }
 
-div#fast-tournament>div#players-list
+.players
 {
-	border-radius: 5px;
-    border: 1px solid black;
-    width : 300px;
+    background-color: white;
     height: 100%;
-	box-shadow: 0 0.3em 1em #000;
+    margin-right: 10px;
 }
 
-div#fast-tournament>div#players-list>table tr:nth-child(even)
- {background: #CCC}
- 
-div#fast-tournament>div#players-list>table tr:nth-child(odd)
- {background: #FFF}
-
-
-div#fast-tournament>div#players-list #name
+.round
 {
-  
+    width : 700px;
+    background-color: white;
+    display:flex;
+    flex-direction: column;
+    flex-wrap: wrap;
 }
 
-div#fast-tournament>div#players-list #rating
+.toolbar {
+    height:544px;
+    background-color: white;
+    padding: 5px;
+}
+
+/* Players */
+
+.players table{
+    border-spacing: 0px;
+    background-color: inherit;
+}
+
+.players player{
+    background-color: inherit;
+}
+
+.player .round-out{
+    color: darkgrey;
+}
+
+.player .tournament-out{
+    color: lightgrey;
+}
+
+.players #rating
 {
-  width:38px;
-  text-align:right;
- 
+    width:38px;
+    text-align:right;
 }
 
-div#fast-tournament>div#players-list tr.player>td.name
+.player .name
 {
-  text-align:left;
+    text-align:left;
 }
 
-div#fast-tournament>div#round-info
+/* Players : actions */
+
+.delete
 {
-	margin-left:10px;
-		border-radius: 5px;
-
-    border: 1px solid black;
-    width : 600px;
-	box-shadow: 0 0.3em 1em #000;
-
+    background-image: url('http://localhost:8000/icons/Trash-can-icon.png');
+    background-repeat: no-repeat;
+    padding:0;
+    margin:0;
+    border:0;
+    height:24px;
+    width:24px;
 }
 
-div#fast-tournament>div#actions-list
+/* Round */
+
+.round-header
 {
-    border: 5px solid purple;
-    width :500px;
-	
+    display: flex;
+    padding:20px;
 }
 
-div#fast-tournament div#games-list>table
+.round-info
 {
-    width:100%;
+    display: flex;
+    justify-content: center;
+    width:50%;
 }
 
-div#fast-tournament div#games-list>table tr:nth-child(even)
- {background: #CCC}
- 
-div#fast-tournament div#games-list>table tr:nth-child(odd)
- {background: #FFF}
+.round-action{
+        width:50%;
+}
+
+.round-title{
+    font-size: 38px;
+    color: #4565A4;
+    font-weight: bold;
+    border: thin none;
+    text-align: center;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.arrow{
+    margin-top: 13px;
+    width: 0; 
+    height: 0; 
+    border-top: 15px solid white;
+    border-bottom: 15px solid white; 
+    background-color:white;
+}
 
 .arrow-left {
-  width: 0; 
-  height: 0; 
-  border-top: 20px solid white;
-  border-bottom: 20px solid white; 
-  background-color:white;
-  border-right:20px solid black; 
+    border-right:23px solid lightblue; 
 }
 
 .arrow-right {
-  width: 0; 
-  height: 0; 
-  border-top: 20px solid white;
-  border-bottom: 20px solid white; 
-  background-color:white;
-  border-left:20px solid black; 
+    border-left:22px solid lightblue; 
 }
+
+.pair
+{
+    height:50px;
+    width:100px;
+    background-color: blue;
+    color:white;
+      font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 50px;
+  white-space: nowrap;
+    /*background-image: url('http://localhost:8000/icons/pair-icon.png');
+    background-repeat: no-repeat;
+    background-size: cover;*/
+    margin: auto;
+}
+
+.unpair
+{
+    height:50px;
+    width:100px;
+    background-color: red;
+    color:white;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    
+ line-height: 50px;
+  white-space: nowrap;
+  /*background-image: url('http://localhost:8000/icons/pair-icon.png');
+    background-repeat: no-repeat;
+    background-size: cover;*/
+    margin: auto;
+}
+
+/* Games */
+ .games>table
+{
+    width:100%;
+    background-color: #39548D;
+    border-spacing: 0;
+}
+
+/* Games : header */
+
+.games-header
+{
+    color: white;
+}
+
+.align-center{
+    text-align: center;
+}
+
+.align-left{
+    text-align: left;
+}
+
+.board{
+    display: block;
+    margin: auto;
+}
+
+.white{
+    height : 15px;
+    width : 50px;
+    background-color: white;
+    border : 1px solid white;
+    margin:auto;
+}
+
+.black{
+    height : 15px;
+    width : 50px;
+    background-color: black;
+    border : 1px solid black;
+    margin:auto;
+}
+
+.game:nth-child(even), .player:nth-child(odd)
+{background: #EBEFF5}
+
+.game:nth-child(odd), .player:nth-child(even)
+{background: #FFF}
+
+#result{
+
+}
+
+/* Toolbar */
+
+.alphabetical-list-icon
+{
+    height:40px;
+    width:40px;
+    background-color: green;
+}
+
+.statistics-icon
+{
+    height:40px;
+    width:40px;
+    background-color: red;
+}
+
+.ranking-table-icon
+{
+    height:40px;
+    width:40px;
+    background-color: purple;
+}
+
+.ranking-crosstable-icon
+{
+    height:40px;
+    width:40px;
+    background-color: orange;
+}
+
+.fide-perfs-icon
+{
+    height:40px;
+    width:40px;
+    background-color: turquoise;
+}
+
+/* Ranking table */
+
+.ranking-table table{
+    width:800px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size : 12px;
+    border-spacing: 0px;
+    margin-left:auto; 
+    margin-right:auto;
+}
+
+.ranking-table caption{
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #4565A4;
+    font-weight: bold;
+}
+
+.ranking-table tr.header{
+    background-color: #39548D;
+}
+
+.ranking-table th{
+    color: white;
+}
+
+.ranking-table .name, .ranking-table .points {
+    font-weight: bold;
+}
+
+.ranking, .title, td.rating, .points{
+    text-align: right;
+}
+
+.ranking-table th.rating, .cat, .fed, .league, .tb {
+    text-align: center;
+}
+
+.ranking-table .name, .ranking-table .club {
+    text-align: left;
+}
+
+/* Ranking crosstable */
+
+.ranking-crosstable{
+}
+
+.ranking-crosstable table{
+    width:800px;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size : 10px;
+    border-spacing: 0px;
+    margin-left:auto; 
+    margin-right:auto;
+}
+
+.ranking-crosstable caption{
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #4565A4;
+    font-weight: bold;
+}
+
+.ranking-crosstable tr.header{
+    background-color: #39548D;
+}
+
+.ranking-crosstable th{
+    color: white;
+}
+
+.ranking-crosstable .name, .ranking-crosstable .points {
+    font-weight: bold;
+}
+
+.ranking-crosstable .ranking, .title, td.rating, .game, .points{
+    text-align: right;
+}
+
+.ranking-crosstable th.rating, .cat, .fed, .league, .tb {
+    text-align: center;
+}
+
+.ranking-crosstable .name, .ranking-crosstable .club {
+    text-align: left;
+}
+
+/* Fide perfs table */
+
+.fide-perfs-table table{
+    width:800px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size : 12px;
+    border-spacing: 0px;
+    margin-left:auto; 
+    margin-right:auto;
+}
+
+.fide-perfs-table caption{
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #4565A4;
+    font-weight: bold;
+}
+
+.fide-perfs-table tr.header{
+    background-color: #39548D;
+}
+
+.fide-perfs-table th{
+    color: white;
+}
+
+.fide-perfs-table .name{
+    text-align: left;
+}
+
+.fide-perfs-table .ranking, .fide-perfs-table .title, .fide-perfs-table .rating,
+.fide-perfs-table .points, .fide-perfs-table .average, .fide-perfs-table .delta{
+    text-align: right;
+}
+
+

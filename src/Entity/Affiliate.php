@@ -28,14 +28,24 @@ class Affiliate {
     private $id;
     
     /**
-     * @ORM\Column(name="name",type="string", length=255)
+     * @ORM\Column(name="lastName",type="string", length=255)
      */
-    private $name;
+    private $lastName;
+    
+      /**
+     * @ORM\Column(name="firstName",type="string", length=255)
+     */
+    private $firstName;
     
     /**
      * @ORM\Column(name="title",type="string", length=3, nullable=true)
      */
     private $title;
+    
+     /**
+    * @ORM\Column(name="birthDate",type="date")
+    */
+    private $birthDate;
     
     /**
     * @ORM\Column(name="gender",type="string", length=1)
@@ -58,7 +68,7 @@ class Affiliate {
     private $ratingType;
     
      /**
-     * @ORM\Column(name="rapid",type="integer")
+     * @ORM\Column(name="rapid",type="integer", nullable=true)
      */
     private $rapid;
     
@@ -68,7 +78,7 @@ class Affiliate {
     private $rapidType;
     
     /**
-     * @ORM\Column(name="blitz",type="integer")
+     * @ORM\Column(name="blitz",type="integer", nullable=true)
      */
     private $blitz;
     
@@ -90,6 +100,36 @@ class Affiliate {
         $this->blitzType = "F";
     }
     
+         /**
+     * @param date $birthDate
+     * @return Affiliate
+     */ 
+    public function setBirthDate($birthDate)
+    {
+        $this->birthDate = $birthDate;
+        
+        return $this;
+    }
+    
+    /**
+     * @return string
+     */ 
+    public function getBirthDate()
+    {
+        return $this->birthDate;
+    }
+    
+       /**
+     * @param integer $gender
+     * @return Affiliate
+     */ 
+    public function setGender($gender)
+    {
+        $this->gender = $gender;
+        
+        return $this;
+    }
+    
     /**
      * @return string
      */ 
@@ -98,21 +138,38 @@ class Affiliate {
         return $this->gender;
     }
    
+   /**
+     * @param string $lastName
+     * @return Affiliate
+     */
+    public function setLastName($lastName) {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
     /**
      * @return string
-     */ 
-    public function getName()
-    {
-        return $this->name;
+     */
+    public function getLastName() {
+        return $this->lastName;
     }
-    
-     /**
-     * @return self
-     */ 
-    public function setName($name)
-    {
-        $this->name = $name;
+
+    /**
+     * @param string $firstName
+     * @return Affiliate
+     */
+    public function setFirstName($firstName) {
+        $this->firstName = $firstName;
+
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFirstName() {
+        return $this->firstName;
     }
     
     /**
@@ -121,6 +178,17 @@ class Affiliate {
     public function getTitle()
     {
         return $this->title;
+    }
+    
+      /**
+     * @param integer $title
+     * @return Affiliate
+     */ 
+    public function setTitle($title)
+    {
+        $this->title = $title;
+        
+        return $this;
     }
     
     /**
@@ -179,6 +247,25 @@ class Affiliate {
     public function getBlitzType()
     {
         return $this->blitzType;
+    }
+ 
+      /**
+     * @param integer $club
+     * @return Affiliate
+     */ 
+    public function setClub($club)
+    {
+        $this->club = $club;
+        
+        return $this;
+    }
+    
+      /**
+     * @return string
+     */ 
+    public function getClub()
+    {
+        return $this->club;
     }
     
 }

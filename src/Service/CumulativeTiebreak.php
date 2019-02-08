@@ -8,7 +8,10 @@
 
 namespace App\Service;
 
+use Doctrine\ORM\EntityManagerInterface;
+
 use App\Service\TiebreakInterface;
+use App\Entity\Player;
 
 /**
  * Description of PerformanceTiebreak
@@ -17,18 +20,28 @@ use App\Service\TiebreakInterface;
  */
 class CumulativeTiebreak implements TiebreakInterface {
 
-    private $tournament;
+    private $em;
     
-    public function __construct(Tournament $tournament) {
-        $this->tournament = $tournament;
+    public function __construct(EntityManagerInterface $em) {
+        $this->em = $em;
     }
     
     public function setCriteria(Player $player) {
         
         $cumulative = 0;
         
-        foreach ($this->tournament->getRounds() as $round) {
-            $cumulative += $player->getRoundPoints($round);
+        $games = $this->em->getRepository('App\Entity\Game')->getGames($player);
+        
+        foreach ($games as $game) {
+            
+            if($player == $game->getWhite())
+            {
+                $cumulative += $game->getWhitePoints();
+            }
+            else
+            {
+                $cumulative += $game->getBlackPoints();
+            }
         }
 
         return $cumulative;

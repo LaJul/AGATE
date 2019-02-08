@@ -4,120 +4,67 @@ namespace App\Controller;
 
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 use App\Entity\Tournament;
-use App\Entity\Round;
 
-class TournamentController extends AbstractController
+use App\Service\RankingCalculator;
+use App\Service\FideRatingCalculator;
+
+class ExportController extends AbstractController
 {
     /**
-    * @Route("/")
-    */
-    public function index()
-    {
+     * @Route("/tournaments/{tournament_slug}/a-z", name="tournaments_az")
+     */
+    public function getAlphabeticalList(string $tournament_slug, RankingCalculator $rc)
+    {    
         $em = $this->get('doctrine')->getManager();
         
-        $repository = $em->getRepository(Tournament::class);
+        $tournament = $em->getRepository(Tournament::class)->findOneBySlug($tournament_slug);  
         
-        $tournament = $repository->findOneByName("InterZonal");
+        $alphabeticalList = $rc->getAlphabeticalList($tournament);
 
-        return $this->redirectToRoute('tournaments_show', array('tournament_id' => $tournament->getId()));
+        return $this->render("alphabeticalList.html.twig", array('tournament' => $tournament, 'alphabeticalList' => $alphabeticalList));
     }
     
     /**
-    * @Route("/tournaments", name="tournaments_fast", methods={"GET"})
-    */
-    public function createTournament(Request $request)
-    {    
-        $tournament = new Tournament;
-        $tournament->setName("AGATE-" . date('Y-m-d H:i:s'));
-                
-        $em = $this->get('doctrine')->getManager();  
-                
-        $round = new Round($tournament, 1);
-        $em->persist($round);
-       
-        $tournament->setCurrentRound($round);
-                
-        $em->persist($tournament);
-        $em->flush();
-                
-        return $this->redirectToRoute('tournaments_show', array('tournament' => $tournament->getId()));
-    }
-    
-    /**
-    * @Route("/tournaments_long", name="tournaments_new", methods={"GET", "POST"})
-    * @Route("/tournaments_long", name="tournaments_create", methods={"GET", "POST"})
-    */
-    public function createLongTournament(Request $request)
-    {    
-        $form = $this->createFormBuilder()
-                ->add('name', TextType::class)
-                ->add('location', TextType::class)
-                ->add('startDate', DateType::class)
-                ->add('endDate', DateType::class)
-                ->add('nbRounds', NumberType::class)
-                
-                ->add('timeControlType', ChoiceType::class, array(
-                    'choices' =>array(
-                        'Classique' => 0,
-                        'Rapide' => 1,
-                        'Blitz' => 2,
-                    ),
-                    'multiple' => false,
-                    'expanded' => true,    
-                ))
-                ->add('timeControl', TextType::class)
-                ->add('valider', SubmitType::class)
-                ->getForm();
-                
-        $form->handleRequest($request);
-        
-        if ($form->isSubmitted()){
-            if ($form->isValid()){
-                $tournament = new Tournament;
-                $tournament->setName($form->get('name')->getData());
-                $tournament->setStartDate($form->get('startDate')->getData());
-                $tournament->setNbRounds($form->get('nbRounds')->getData());
-                $tournament->setTimeControlType($form->get('timeControlType')->getData());
-                $tournament->setTimeControl($form->get('timeControl')->getData());
-                
-                $em = $this->get('doctrine')->getManager();  
-                
-                for ($i = $form->get('nbRounds')->getData(); $i > 0; $i--) {
-                    $round = new Round($tournament, $i);
-                    $em->persist($round);
-                } 
-                
-                $tournament->setCurrentRound($round);
-          
-                $em->persist($tournament);
-                $em->flush();
-                
-                return $this->redirectToRoute('tournament', array('tournament' => $tournament->getId()));
-            }
-        }
-        
-        return array('form' => $form->createView());
-    }
-   
-    /**
-     * @Route("/tournaments/{tournament_id}", name="tournaments_show")
+     * @Route("/tournaments/{tournament_slug}/rounds/{round_number}/rk", name="tournaments_rk")
      */
-    public function getTournament(int $tournament_id)
+    public function getRankingTable(string $tournament_slug, int $round_number, RankingCalculator $rc)
     {    
-        $tournament = $this->get('doctrine')->getManager()->getRepository(Tournament::class)->find($tournament_id);  
+        $em = $this->get('doctrine')->getManager();
+        
+        $tournament = $em->getRepository(Tournament::class)->findOneBySlug($tournament_slug);
+        
+        $rankingTable = $rc->getRankingTable($tournament, $round_number);
 
-        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => 1));
+        return $this->render("rankingTable.html.twig", array('tournament' => $tournament, 'roundNumber' => $round_number-1, 'rankingTable' => $rankingTable));
     }
     
+    /**
+     * @Route("/tournaments/{tournament_slug}/rounds/{round_number}/ag", name="tournaments_ag")
+     */
+    public function getRankingCrosstable(string $tournament_slug, int $round_number, RankingCalculator $rc)
+    {    
+        $em = $this->get('doctrine')->getManager();
+        
+        $tournament = $em->getRepository(Tournament::class)->findOneBySlug($tournament_slug);
+        
+        $rankingCrosstable = $rc->getRankingCrosstable($tournament, $round_number);
+        
+        return $this->render("rankingCrosstable.html.twig", array('tournament' => $tournament, 'roundNumber' => $round_number-1, 'rankingCrosstable' => $rankingCrosstable));
+    }
     
-   
-    
+    /**
+     * @Route("/tournaments/{tournament_slug}/rounds/{round_number}/fide", name="tournaments_fide")
+     */
+    public function getFidePerfsTable(string $tournament_slug, int $round_number, FideRatingCalculator $rc)
+    {    
+        $em = $this->get('doctrine')->getManager();
+        
+        $tournament = $em->getRepository(Tournament::class)->findOneBySlug($tournament_slug);
+        
+        $fidePerfsTable = $rc->getFidePerfsTable($tournament, $round_number);
+
+        return $this->render("fide.html.twig", array('tournament' => $tournament, 'roundNumber' => $round_number-1, 'fidePerfsTable' => $fidePerfsTable));
+    }
 }
