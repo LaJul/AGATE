@@ -1,0 +1,43 @@
+
+<table>
+   
+    <caption>{{ tournament.name }}<br />Classement après la ronde {{ round.number }}</caption>
+
+    <tr>
+        <th>Pl</th>
+        <th></th>
+        <th>Nom</th>
+        <th>Elo</th>
+        <th></th>
+        <th>Cat.</th>
+        <th>Fede</th>
+        <th>Ligue</th>
+        <th>Club</th>
+        <th>Pts</th>
+        <th>Perf</th>
+        <th></th>
+        <th></th>
+    <tr/>
+
+    {% for player in tournament.players %}
+        <tr class="player"> 
+            <td>{{ player.ranking }}</td>
+            <td>{{ player.title }}</td>
+            <td>{{ player.name }}</td>
+            <td>{{ player.rating }}</td>
+            <td>F</td>
+            <td>Sen{{ player.gender }}</td>
+            <td>FRA</td>
+            <td>NAQ</td>
+
+            <td>Bordeaux ASPOM Echecs</td>
+            <td>{{ player.points }}</td>
+            <td>{{ player.rating }}</td>
+            <td>DEP 2</td>
+            <td>DEP 3</td>
+
+        </tr>
+    {% endfor %}
+
+</table>
+
