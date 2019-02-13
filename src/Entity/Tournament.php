@@ -289,27 +289,25 @@ class Tournament {
     /**
      * @return integer
      */
-    public function addPlayer($affiliate = null) {
+    public function addAffiliatePlayer($affiliate) {
 
         $player = new Player($affiliate);
 
-        if ($affiliate != null) {
-
-            switch ($this->getTimeControlType()) {
-                case 0:
-                    $player->setRating($affiliate->getRating());
-                    $player->setRatingType($affiliate->getRatingType());
-                    break;
-                case 1:
-                    $player->setRating($affiliate->getRapid());
-                    $player->setRatingType($affiliate->getRapidType());
-                    break;
-                case 2:
-                    $player->setRating($affiliate->getBlitz());
-                    $player->setRatingType($affiliate->getBlitzType());
-                    break;
-            }
+        switch ($this->getTimeControlType()) {
+            case 0:
+                $player->setRating($affiliate->getRating());
+                $player->setRatingType($affiliate->getRatingType());
+                break;
+            case 1:
+                $player->setRating($affiliate->getRapid());
+                $player->setRatingType($affiliate->getRapidType());
+                break;
+            case 2:
+                $player->setRating($affiliate->getBlitz());
+                $player->setRatingType($affiliate->getBlitzType());
+                break;
         }
+
         $player->setTournament($this);
 
         $this->players->add($player);
@@ -319,6 +317,20 @@ class Tournament {
         return $player;
     }
 
+    
+     /**
+     * @return integer
+     */
+    public function addPlayer($player) {
+
+        $player->setTournament($this);
+
+        $this->players->add($player);
+
+        $this->rounds->get(0)->add($player);
+
+        return $this;
+    }
     /**
      * @return entities
      */

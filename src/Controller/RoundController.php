@@ -88,7 +88,7 @@ class RoundController extends AbstractController
         return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round_number));
     }
     
-     /**
+    /**
     * @Route("/tournaments/{tournament_slug}/round/{round_number}/players/{player}?action=pairBlack", name="player_pair_black", methods={"GET"})
     */
     public function pairBlackPlayer(string $tournament_slug, int $round_number, Player $player)
@@ -105,7 +105,6 @@ class RoundController extends AbstractController
         
         return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round_number));
     }
-    
     
     /**
      * @Route("/tournaments/{tournament_slug}/rounds/{round_number}?action=quick", name="set_round_result")

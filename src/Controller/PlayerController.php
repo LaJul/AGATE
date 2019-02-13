@@ -72,17 +72,21 @@ class PlayerController extends AbstractController
     
     
     /**
-    * @Route("/tournaments/{tournament}/round/{round_number}/players/{player}?action=roundOut", name="player_round_out", methods={"GET"})
+    * @Route("/tournaments/{tournament_slug}/round/{round_number}/players/{player_id}?action=roundOut", name="player_round_out", methods={"GET"})
     */
-    public function roundOutlayer(Tournament $tournament, int $round_number, Player $player)
+    public function roundOutlayer(string $tournament_slug, int $round_number, int $player_id)
     {        
-        $round = $tournament->getRound($round_number);  
-        
-        $round->remove($player);
-       
         $em = $this->get('doctrine')->getManager();
+
+        $tournament = $em->getRepository(Tournament::class)->findOneBySlug($tournament_slug);  
+        $round = $tournament->getRound($round_number);  
+        $player = $em->getRepository(Player::class)->find($player_id);  
+
+        $round->remove($player);
+        
+        $em->persist($round);
         $em->flush();
         
-        return $this->redirectToRoute('round_show', array('tournament_id' => $tournament->getId(), 'round_number' => $round_number));
+        return $this->redirectToRoute('round_show', array('tournament_slug' => $tournament->getSlug(), 'round_number' => $round->getNumber()));
     }
 }

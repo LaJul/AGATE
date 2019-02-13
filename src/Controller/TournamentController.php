@@ -23,7 +23,7 @@ class TournamentController extends AbstractController
     {
         $em = $this->get('doctrine')->getManager();
                 
-        $tournament = $em->getRepository(Tournament::class)->findOneByName("InterZonal");
+        $tournament = $em->getRepository(Tournament::class)->findOneByName("LivreArbitre");
 
         return $this->redirectToRoute('tournaments_show', array('tournament_slug' => $tournament->getSlug()));
     }

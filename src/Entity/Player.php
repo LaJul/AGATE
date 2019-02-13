@@ -108,6 +108,7 @@ class Player {
      * @ORM\OneToMany(targetEntity="Game", mappedBy="black")
      */
     private $blackGames;
+    
     private $colourPreference;
 
     /**
@@ -153,7 +154,7 @@ class Player {
      */
     public function setTournament($tournament) {
         $this->tournament = $tournament;
-
+        
         return $this;
     }
 

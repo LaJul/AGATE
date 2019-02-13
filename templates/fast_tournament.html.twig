@@ -37,7 +37,7 @@
                 <td>{{ player.lastName | upper}} {{ player.firstName }}</td>
                 <td>{{ player.rating }}</td>
                 <td>{{ player.points }}</td>
-                <td><div class="delete" onclick="window.location = '{{ path('player_destroy', { 'tournament_slug': tournament.slug, 'player': player.id})}}';"/></td>
+                <td><div class="delete" onclick="window.location = '{{ path('player_round_out', { 'tournament_slug': tournament.slug, 'round_number' : round.number, 'player_id': player.id})}}';"/></td>
             </tr>
             {% endfor %}
             {% for player in round.roundOutPlayers %}
